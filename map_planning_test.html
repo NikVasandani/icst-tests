@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Map Planning Test — icstaptitude.com</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --crimson: #b71c1c;
+  --crimson-dark: #7f0000;
+  --crimson-light: #e53935;
+  --gold: #c9a84c;
+  --bg: #f5f0eb;
+  --card-bg: #ffffff;
+  --text: #1a1a1a;
+  --text-light: #5a5a5a;
+  --border: #d4cfc9;
+  --success: #2e7d32;
+  --error: #c62828;
+  --blue: #1565c0;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+}
+
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+.header {
+  background: var(--crimson);
+  background: linear-gradient(135deg, var(--crimson-dark) 0%, var(--crimson) 50%, var(--crimson-light) 100%);
+  color: white;
+  box-shadow: 0 4px 20px rgba(183,28,28,0.3);
+  position: relative;
+  overflow: hidden;
+}
+.header::after {
+  content: '';
+  position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events: none;
+}
+.header-content {
+  max-width: 1200px; margin: 0 auto; padding: 18px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: relative; z-index: 1;
+}
+.header-brand h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+.header-brand .subtitle { font-size: 13px; font-weight: 300; opacity: 0.85; letter-spacing: 1px; text-transform: uppercase; margin-top: 2px; }
+.header-brand .domain { font-family: 'IBM Plex Mono', monospace; font-size: 11px; opacity: 0.6; margin-top: 4px; }
+
+.nav-bar {
+  background: var(--card-bg); border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.nav-content {
+  max-width: 1200px; margin: 0 auto;
+  display: flex; align-items: center; padding: 0 32px; gap: 0;
+}
+.nav-btn {
+  padding: 14px 28px; border: none; background: none;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 500;
+  color: var(--text-light); cursor: pointer;
+  border-bottom: 3px solid transparent; transition: all 0.2s;
+}
+.nav-btn:hover { color: var(--text); background: rgba(0,0,0,0.02); }
+.nav-btn.active { color: var(--crimson); border-bottom-color: var(--crimson); font-weight: 600; }
+
+.nav-timer {
+  margin-left: auto; font-family: 'IBM Plex Mono', monospace;
+  font-size: 20px; font-weight: 500; color: var(--crimson);
+  padding: 8px 16px; background: rgba(183,28,28,0.06);
+  border-radius: 8px; display: none;
+}
+.nav-timer.visible { display: block; }
+.nav-timer.warning { animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+.main { max-width: 1200px; margin: 0 auto; padding: 24px 32px 60px; }
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* LANDING */
+.landing { text-align: center; padding: 60px 20px; }
+.landing h2 { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+.landing .test-label {
+  font-size: 14px; text-transform: uppercase; letter-spacing: 2px;
+  color: var(--crimson); font-weight: 600; margin-bottom: 24px;
+}
+.instructions-card {
+  background: var(--card-bg); border-radius: 12px; padding: 36px 40px;
+  max-width: 720px; margin: 0 auto 32px; text-align: left;
+  box-shadow: var(--shadow); border: 1px solid var(--border);
+}
+.instructions-card h3 {
+  font-size: 16px; font-weight: 600; margin-bottom: 16px;
+  color: var(--crimson); text-transform: uppercase; letter-spacing: 1px;
+}
+.instructions-card p { margin-bottom: 12px; color: var(--text-light); font-size: 15px; }
+.instructions-card .rules { margin: 16px 0; padding-left: 0; list-style: none; counter-reset: rule; }
+.instructions-card .rules li {
+  counter-increment: rule; padding: 10px 0 10px 36px;
+  position: relative; color: var(--text); font-size: 14px;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+.instructions-card .rules li:last-child { border-bottom: none; }
+.instructions-card .rules li::before {
+  content: counter(rule); position: absolute; left: 0; top: 10px;
+  width: 24px; height: 24px; background: var(--crimson); color: white;
+  border-radius: 50%; font-size: 12px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.btn-row { display: flex; gap: 16px; justify-content: center; margin-top: 32px; }
+.btn {
+  padding: 14px 36px; border-radius: 8px; border: none;
+  font-family: 'IBM Plex Sans', sans-serif; font-size: 15px; font-weight: 600;
+  cursor: pointer; transition: all 0.2s; text-transform: uppercase; letter-spacing: 1px;
+}
+.btn-primary {
+  background: var(--crimson); color: white;
+  box-shadow: 0 4px 12px rgba(183,28,28,0.3);
+}
+.btn-primary:hover { background: var(--crimson-dark); transform: translateY(-1px); }
+.btn-secondary { background: white; color: var(--crimson); border: 2px solid var(--crimson); }
+.btn-secondary:hover { background: rgba(183,28,28,0.04); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* TEST LAYOUT */
+.test-layout { display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start; }
+@media (max-width: 1000px) { .test-layout { grid-template-columns: 1fr; } }
+
+.map-container {
+  background: var(--card-bg); border-radius: 12px; padding: 24px;
+  box-shadow: var(--shadow); border: 1px solid var(--border);
+}
+.map-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.map-title { font-size: 14px; font-weight: 600; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; }
+.map-counter {
+  font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--crimson);
+  background: rgba(183,28,28,0.06); padding: 4px 12px; border-radius: 20px;
+}
+
+.map-svg-wrapper { width: 100%; position: relative; }
+.map-svg-wrapper svg { width: 100%; height: auto; }
+
+.map-key {
+  display: flex; gap: 24px; margin-top: 16px; padding-top: 16px;
+  border-top: 1px solid var(--border); flex-wrap: wrap;
+}
+.key-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-light); }
+.key-street { width: 24px; height: 3px; background: var(--text); border-radius: 2px; }
+.key-block { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--text); background: white; }
+.key-building {
+  width: 18px; height: 18px; border: 2px solid var(--text); background: rgba(0,0,0,0.05);
+  font-size: 9px; display: flex; align-items: center; justify-content: center; font-weight: 600;
+}
+
+/* QUESTIONS PANEL */
+.questions-panel {
+  background: var(--card-bg); border-radius: 12px; padding: 20px;
+  box-shadow: var(--shadow); border: 1px solid var(--border);
+  position: sticky; top: 60px;
+}
+.questions-panel h3 {
+  font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+  color: var(--text-light); margin-bottom: 16px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.question-item {
+  display: flex; align-items: center; padding: 8px 12px; margin-bottom: 4px;
+  border-radius: 8px; font-size: 14px; transition: background 0.15s; gap: 12px;
+}
+.question-item.current { background: rgba(21,101,192,0.08); border: 1px solid rgba(21,101,192,0.2); }
+.question-item.correct { background: rgba(46,125,50,0.08); }
+.question-item.incorrect { background: rgba(198,40,40,0.08); }
+
+.q-number { font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500; color: var(--text-light); min-width: 28px; }
+.q-route { font-weight: 500; flex: 1; }
+.q-input {
+  width: 48px; padding: 4px 8px; border: 2px solid var(--border); border-radius: 6px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 14px; text-align: center;
+  transition: border-color 0.2s; background: white;
+}
+.q-input:focus { outline: none; border-color: var(--blue); }
+.q-input.correct-input { border-color: var(--success); background: rgba(46,125,50,0.05); }
+.q-input.incorrect-input { border-color: var(--error); background: rgba(198,40,40,0.05); }
+.q-input:disabled { background: #f5f5f5; }
+
+.q-answer { font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 600; min-width: 28px; text-align: center; }
+.q-answer.correct { color: var(--success); }
+.q-answer.incorrect { color: var(--error); }
+
+.questions-scroll { max-height: calc(100vh - 220px); overflow-y: auto; padding-right: 4px; }
+.questions-scroll::-webkit-scrollbar { width: 4px; }
+.questions-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.actions-bar { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+.actions-bar .btn { font-size: 13px; padding: 10px 20px; flex: 1; }
+
+.feedback-banner {
+  padding: 12px 20px; border-radius: 8px; margin-top: 12px;
+  font-size: 14px; font-weight: 500; display: none;
+}
+.feedback-banner.show { display: block; }
+.feedback-banner.correct-fb { background: rgba(46,125,50,0.1); color: var(--success); border: 1px solid rgba(46,125,50,0.2); }
+.feedback-banner.incorrect-fb { background: rgba(198,40,40,0.1); color: var(--error); border: 1px solid rgba(198,40,40,0.2); }
+
+/* RESULTS */
+.results-card {
+  background: var(--card-bg); border-radius: 12px; padding: 48px;
+  max-width: 600px; margin: 40px auto; text-align: center;
+  box-shadow: var(--shadow-lg); border: 1px solid var(--border);
+}
+.results-card h2 { font-size: 28px; margin-bottom: 8px; }
+.results-score { font-size: 64px; font-weight: 700; color: var(--crimson); margin: 24px 0 8px; font-family: 'IBM Plex Mono', monospace; }
+.results-subtitle { color: var(--text-light); font-size: 16px; margin-bottom: 32px; }
+.results-stats { display: flex; justify-content: center; gap: 40px; margin-bottom: 32px; }
+.stat-item { text-align: center; }
+.stat-value { font-size: 24px; font-weight: 700; font-family: 'IBM Plex Mono', monospace; }
+.stat-value.green { color: var(--success); }
+.stat-value.red { color: var(--error); }
+.stat-label { font-size: 12px; color: var(--text-light); text-transform: uppercase; letter-spacing: 1px; margin-top: 4px; }
+
+.modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5); display: none;
+  align-items: center; justify-content: center; z-index: 1000;
+}
+.modal-overlay.show { display: flex; }
+.modal-box {
+  background: white; border-radius: 12px; padding: 32px;
+  max-width: 440px; width: 90%; box-shadow: var(--shadow-lg); text-align: center;
+}
+.modal-box h3 { font-size: 20px; margin-bottom: 12px; }
+.modal-box p { color: var(--text-light); margin-bottom: 24px; font-size: 15px; }
+
+.footer { text-align: center; padding: 24px; color: var(--text-light); font-size: 12px; opacity: 0.7; }
+
+@media (max-width: 768px) {
+  .header-content { padding: 14px 16px; }
+  .header-brand h1 { font-size: 18px; }
+  .main { padding: 16px; }
+  .instructions-card { padding: 24px; }
+  .nav-content { padding: 0 16px; }
+  .nav-btn { padding: 12px 16px; font-size: 13px; }
+  .test-layout { grid-template-columns: 1fr; }
+  .questions-panel { position: static; }
+  .results-card { padding: 32px 24px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-content">
+    <div class="header-brand">
+      <h1>Surgical Aptitude Tests</h1>
+      <div class="subtitle">Developing Healthcare Leaders</div>
+      <div class="domain">icstaptitude.com</div>
+    </div>
+  </div>
+</div>
+
+<div class="nav-bar">
+  <div class="nav-content">
+    <button class="nav-btn active" onclick="showScreen('landing')" id="navHome">Home</button>
+    <button class="nav-btn" onclick="startPractice()" id="navPractice">Practice</button>
+    <button class="nav-btn" onclick="confirmStartTest()" id="navTest">Test</button>
+    <div id="timerDisplay" class="nav-timer">03:00</div>
+  </div>
+</div>
+
+<div class="main">
+
+  <div id="screen-landing" class="screen active">
+    <div class="landing">
+      <div class="test-label">Surgical Aptitude Test Component</div>
+      <h2>Map Planning Test</h2>
+      <div class="instructions-card">
+        <h3>Instructions</h3>
+        <p>This is a test of your ability to find the shortest route between two places as quickly as possible. The map shows a city grid where:</p>
+        <ul class="rules">
+          <li><strong>Dark lines</strong> are streets you can travel along. <strong>Circles</strong> are road-blocks &mdash; you cannot pass through them. <strong>Numbered squares</strong> are buildings.</li>
+          <li>Find the shortest route between two lettered points on the map perimeter. Your answer is the <strong>number on the building</strong> that your route passes.</li>
+          <li>The shortest route will always pass along the side of <strong>one and only one</strong> numbered building.</li>
+          <li>A building is <strong>not</strong> considered passed if a route only touches a corner and not a full side.</li>
+          <li>The same numbered building may appear as the answer for more than one route.</li>
+        </ul>
+        <p style="margin-top:16px;font-size:13px;color:var(--crimson);font-weight:500;">Your score is the number of correct answers. It will not be to your advantage to guess unless you have some idea which route is correct. Work as rapidly as you can without sacrificing accuracy.</p>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="startPractice()">Practice (30 Trials)</button>
+        <button class="btn btn-primary" onclick="confirmStartTest()">Start Test (60 Trials)</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-practice" class="screen">
+    <div class="test-layout">
+      <div>
+        <div class="map-container">
+          <div class="map-header">
+            <span class="map-title">Practice Mode &mdash; Map <span id="practiceMapNum">1</span></span>
+            <span class="map-counter" id="practiceCounter">Question 1 / 30</span>
+          </div>
+          <div class="map-svg-wrapper" id="practiceMapSvg"></div>
+          <div class="map-key">
+            <div class="key-item"><div class="key-street"></div> Street</div>
+            <div class="key-item"><div class="key-block"></div> Road-block</div>
+            <div class="key-item"><div class="key-building">3</div> Building</div>
+          </div>
+          <div id="practiceFeedback" class="feedback-banner"></div>
+        </div>
+      </div>
+      <div class="questions-panel">
+        <h3>Questions</h3>
+        <div class="questions-scroll" id="practiceQuestions"></div>
+        <div class="actions-bar">
+          <button class="btn btn-secondary" id="practiceCheckBtn" onclick="checkPracticeAnswer()">Check</button>
+          <button class="btn btn-primary" id="practiceNextBtn" onclick="nextPracticeQuestion()">Next &rarr;</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-test" class="screen">
+    <div class="test-layout">
+      <div>
+        <div class="map-container">
+          <div class="map-header">
+            <span class="map-title">Test Mode &mdash; Map <span id="testMapNum">1</span></span>
+            <span class="map-counter" id="testCounter">Question 1 / 60</span>
+          </div>
+          <div class="map-svg-wrapper" id="testMapSvg"></div>
+          <div class="map-key">
+            <div class="key-item"><div class="key-street"></div> Street</div>
+            <div class="key-item"><div class="key-block"></div> Road-block</div>
+            <div class="key-item"><div class="key-building">3</div> Building</div>
+          </div>
+        </div>
+      </div>
+      <div class="questions-panel">
+        <h3>Questions</h3>
+        <div class="questions-scroll" id="testQuestions"></div>
+        <div class="actions-bar">
+          <button class="btn btn-primary" id="testNextBtn" onclick="nextTestQuestion()">Next &rarr;</button>
+          <button class="btn btn-primary" id="testSubmitBtn" onclick="submitTest()" style="display:none;">Submit Test</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-results" class="screen">
+    <div class="results-card">
+      <div style="color:var(--crimson);font-size:13px;letter-spacing:2px;text-transform:uppercase;font-weight:600;margin-bottom:8px;">Test Complete</div>
+      <h2>Your Results</h2>
+      <div class="results-score" id="resultsScore">0/60</div>
+      <div class="results-subtitle" id="resultsPercent">0% correct</div>
+      <div class="results-stats">
+        <div class="stat-item"><div class="stat-value green" id="resultsCorrect">0</div><div class="stat-label">Correct</div></div>
+        <div class="stat-item"><div class="stat-value red" id="resultsIncorrect">0</div><div class="stat-label">Incorrect</div></div>
+        <div class="stat-item"><div class="stat-value" id="resultsUnanswered">0</div><div class="stat-label">Unanswered</div></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="reviewTest()">Review Answers</button>
+        <button class="btn btn-primary" onclick="showScreen('landing')">Back to Home</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-review" class="screen">
+    <div class="test-layout">
+      <div>
+        <div class="map-container">
+          <div class="map-header">
+            <span class="map-title">Review &mdash; Map <span id="reviewMapNum">1</span></span>
+            <span class="map-counter" id="reviewCounter">Map 1</span>
+          </div>
+          <div class="map-svg-wrapper" id="reviewMapSvg"></div>
+          <div class="map-key">
+            <div class="key-item"><div class="key-street"></div> Street</div>
+            <div class="key-item"><div class="key-block"></div> Road-block</div>
+            <div class="key-item"><div class="key-building">3</div> Building</div>
+          </div>
+        </div>
+      </div>
+      <div class="questions-panel">
+        <h3>Review Answers</h3>
+        <div class="questions-scroll" id="reviewQuestions"></div>
+        <div class="actions-bar">
+          <button class="btn btn-secondary" onclick="prevReviewMap()">&larr; Prev</button>
+          <button class="btn btn-primary" onclick="nextReviewMap()">Next &rarr;</button>
+        </div>
+        <div style="margin-top:12px;">
+          <button class="btn btn-secondary" style="width:100%;" onclick="showScreen('results')">Back to Results</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal-overlay" id="confirmModal">
+  <div class="modal-box">
+    <h3>Start Timed Test</h3>
+    <p>The test contains <strong>60 questions</strong> across multiple maps. You will have <strong>3 minutes per map</strong> (timer resets each map). Are you ready?</p>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="startTest()">Begin Test</button>
+    </div>
+  </div>
+</div>
+
+<div class="footer">icstaptitude.com &mdash; Map Planning Test Practice Tool</div>
+
+<script>
+// ==================== CONSTANTS ====================
+const COLS = 8, ROWS = 7;
+const PERIMETER = [];
+(function() {
+  for (let c = 0; c < COLS; c++) PERIMETER.push({letter: String.fromCharCode(65+c), col: c, row: 0});
+  for (let r = 1; r < ROWS-1; r++) PERIMETER.push({letter: String.fromCharCode(65+COLS+r-1), col: COLS-1, row: r});
+  for (let c = COLS-1; c >= 0; c--) PERIMETER.push({letter: String.fromCharCode(65+COLS+(ROWS-2)+(COLS-1-c)), col: c, row: ROWS-1});
+  for (let r = ROWS-2; r >= 1; r--) PERIMETER.push({letter: String.fromCharCode(65+2*COLS+(ROWS-2)-1+(ROWS-2-r)), col: 0, row: r});
+})();
+
+function nk(c,r){return c+','+r}
+function ek(c1,r1,c2,r2){
+  if(c1<c2||(c1===c2&&r1<r2))return c1+','+r1+'-'+c2+','+r2;
+  return c2+','+r2+'-'+c1+','+r1;
+}
+function isPerim(c,r){return c===0||c===COLS-1||r===0||r===ROWS-1}
+
+// Seeded PRNG
+function prng(s){return function(){s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+
+// ==================== MAP GENERATION ====================
+function buildAdj(edges,blocks){
+  const a=new Map();
+  for(const e of edges){
+    const p=e.split('-');
+    if(blocks.has(p[0])||blocks.has(p[1]))continue;
+    if(!a.has(p[0]))a.set(p[0],[]);
+    if(!a.has(p[1]))a.set(p[1],[]);
+    a.get(p[0]).push(p[1]);
+    a.get(p[1]).push(p[0]);
+  }
+  return a;
+}
+
+function isConn(edges,blocks){
+  const pn=PERIMETER.filter(p=>!blocks.has(nk(p.col,p.row)));
+  if(pn.length<2)return false;
+  const adj=buildAdj(edges,blocks);
+  const start=nk(pn[0].col,pn[0].row);
+  const vis=new Set([start]);
+  const q=[start];
+  while(q.length){const c=q.shift();for(const n of(adj.get(c)||[])){if(!vis.has(n)){vis.add(n);q.push(n)}}}
+  return pn.every(p=>vis.has(nk(p.col,p.row)));
+}
+
+function genMap(seed){
+  const R=prng(seed);
+  const ri=(a,b)=>Math.floor(R()*(b-a+1))+a;
+  const shuf=arr=>{for(let i=arr.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]}return arr};
+
+  const allE=new Set();
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+    if(c<COLS-1)allE.add(ek(c,r,c+1,r));
+    if(r<ROWS-1)allE.add(ek(c,r,c,r+1));
+  }
+
+  const edges=new Set(allE);
+  const ea=shuf([...allE]);
+  const toRem=ri(Math.floor(ea.length*0.13),Math.floor(ea.length*0.20));
+  let rem=0;
+  for(const e of ea){
+    if(rem>=toRem)break;
+    edges.delete(e);
+    if(isConn(edges,new Set())){rem++}else{edges.add(e)}
+  }
+
+  const interior=[];
+  for(let r=1;r<ROWS-1;r++)for(let c=1;c<COLS-1;c++)interior.push({col:c,row:r});
+  shuf(interior);
+
+  const blocks=new Set();
+  const nb=ri(8,13);
+  for(let i=0;i<Math.min(nb,interior.length);i++){
+    const n=interior[i]; const k=nk(n.col,n.row);
+    blocks.add(k);
+    if(!isConn(edges,blocks))blocks.delete(k);
+  }
+
+  const cells=[];
+  for(let r=0;r<ROWS-1;r++)for(let c=0;c<COLS-1;c++)cells.push({col:c,row:r});
+  shuf(cells);
+
+  const buildings=[];
+  const nbu=ri(8,11);
+  let bn=1;
+  for(const cell of cells){
+    if(buildings.length>=nbu)break;
+    buildings.push({col:cell.col,row:cell.row,num:bn++});
+  }
+  return {edges,roadblocks:blocks,buildings};
+}
+
+// ==================== PATHFINDING ====================
+function bfs(adj,s,e){
+  if(s===e)return[s];
+  const vis=new Map([[s,null]]);
+  const q=[s];
+  while(q.length){
+    const c=q.shift();
+    for(const n of(adj.get(c)||[])){
+      if(!vis.has(n)){
+        vis.set(n,c);
+        if(n===e){const p=[];let x=n;while(x!==null){p.unshift(x);x=vis.get(x)}return p}
+        q.push(n);
+      }
+    }
+  }
+  return null;
+}
+
+function getBldgPassed(path,buildings){
+  if(!path||path.length<2)return[];
+  const pe=new Set();
+  for(let i=0;i<path.length-1;i++){
+    const[c1,r1]=path[i].split(',').map(Number);
+    const[c2,r2]=path[i+1].split(',').map(Number);
+    pe.add(ek(c1,r1,c2,r2));
+  }
+  return buildings.filter(b=>{
+    return[ek(b.col,b.row,b.col+1,b.row),ek(b.col,b.row+1,b.col+1,b.row+1),
+           ek(b.col,b.row,b.col,b.row+1),ek(b.col+1,b.row,b.col+1,b.row+1)].some(s=>pe.has(s));
+  });
+}
+
+function genQuestions(map,count,seed){
+  const R=prng(seed);
+  const adj=buildAdj(map.edges,map.roadblocks);
+  const pairs=[];
+  for(let i=0;i<PERIMETER.length;i++)for(let j=i+1;j<PERIMETER.length;j++){
+    const a=PERIMETER[i],b=PERIMETER[j];
+    if(map.roadblocks.has(nk(a.col,a.row))||map.roadblocks.has(nk(b.col,b.row)))continue;
+    pairs.push([a,b]);
+  }
+  for(let i=pairs.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[pairs[i],pairs[j]]=[pairs[j],pairs[i]]}
+
+  const valid=[];
+  for(const[a,b]of pairs){
+    if(valid.length>=count)break;
+    const path=bfs(adj,nk(a.col,a.row),nk(b.col,b.row));
+    if(!path)continue;
+    const passed=getBldgPassed(path,map.buildings);
+    if(passed.length===1){
+      valid.push({from:a.letter,to:b.letter,answer:passed[0].num,path,
+        fromCol:a.col,fromRow:a.row,toCol:b.col,toRow:b.row});
+    }
+  }
+  return valid;
+}
+
+// ==================== SVG RENDERING ====================
+function renderSVG(map,containerId,hlPath,startEnd){
+  const pad=50,cw=70,ch=70;
+  const w=pad*2+(COLS-1)*cw,h=pad*2+(ROWS-1)*ch;
+  const nx=c=>pad+c*cw,ny=r=>pad+r*ch;
+
+  let s=`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="font-family:'IBM Plex Sans',sans-serif">`;
+  s+=`<rect width="${w}" height="${h}" fill="#fefcfa" rx="8"/>`;
+
+  // Streets
+  for(const e of map.edges){
+    const p=e.split('-');
+    const[c1,r1]=p[0].split(',').map(Number);
+    const[c2,r2]=p[1].split(',').map(Number);
+    s+=`<line x1="${nx(c1)}" y1="${ny(r1)}" x2="${nx(c2)}" y2="${ny(r2)}" stroke="#2c2c2c" stroke-width="2.5" stroke-linecap="round"/>`;
+  }
+
+  // Highlighted path
+  if(hlPath&&hlPath.length>1){
+    for(let i=0;i<hlPath.length-1;i++){
+      const[c1,r1]=hlPath[i].split(',').map(Number);
+      const[c2,r2]=hlPath[i+1].split(',').map(Number);
+      s+=`<line x1="${nx(c1)}" y1="${ny(r1)}" x2="${nx(c2)}" y2="${ny(r2)}" stroke="#1565c0" stroke-width="5" opacity="0.45" stroke-linecap="round"/>`;
+    }
+  }
+
+  // Buildings
+  const bs=30;
+  const hlEdges=new Set();
+  if(hlPath&&hlPath.length>1){
+    for(let i=0;i<hlPath.length-1;i++){
+      const[c1,r1]=hlPath[i].split(',').map(Number);
+      const[c2,r2]=hlPath[i+1].split(',').map(Number);
+      hlEdges.add(ek(c1,r1,c2,r2));
+    }
+  }
+  for(const b of map.buildings){
+    const cx=(nx(b.col)+nx(b.col+1))/2,cy=(ny(b.row)+ny(b.row+1))/2;
+    let hi=false;
+    if(hlEdges.size){
+      hi=[ek(b.col,b.row,b.col+1,b.row),ek(b.col,b.row+1,b.col+1,b.row+1),
+          ek(b.col,b.row,b.col,b.row+1),ek(b.col+1,b.row,b.col+1,b.row+1)].some(e=>hlEdges.has(e));
+    }
+    s+=`<rect x="${cx-bs/2}" y="${cy-bs/2}" width="${bs}" height="${bs}" fill="${hi?'rgba(21,101,192,0.15)':'rgba(0,0,0,0.04)'}" stroke="${hi?'#1565c0':'#555'}" stroke-width="${hi?2.5:1.5}"/>`;
+    s+=`<text x="${cx}" y="${cy+1}" text-anchor="middle" dominant-baseline="central" font-size="14" font-weight="600" fill="${hi?'#1565c0':'#333'}">${b.num}</text>`;
+  }
+
+  // Nodes
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
+    const k=nk(c,r);
+    if(map.roadblocks.has(k)){
+      s+=`<circle cx="${nx(c)}" cy="${ny(r)}" r="8" fill="white" stroke="#2c2c2c" stroke-width="2"/>`;
+    }else{
+      const isH=hlPath&&hlPath.includes(k);
+      s+=`<circle cx="${nx(c)}" cy="${ny(r)}" r="${isH?5:3}" fill="${isH?'#1565c0':'#2c2c2c'}" opacity="${isH?0.5:1}"/>`;
+    }
+  }
+
+  // Start/end rings
+  if(startEnd){
+    s+=`<circle cx="${nx(startEnd.fromCol)}" cy="${ny(startEnd.fromRow)}" r="11" fill="none" stroke="#c62828" stroke-width="2.5"/>`;
+    s+=`<circle cx="${nx(startEnd.toCol)}" cy="${ny(startEnd.toRow)}" r="11" fill="none" stroke="#c62828" stroke-width="2.5"/>`;
+  }
+
+  // Letters
+  for(const p of PERIMETER){
+    let lx=nx(p.col),ly=ny(p.row);
+    const off=20;
+    if(p.row===0)ly-=off;
+    else if(p.row===ROWS-1)ly+=off+4;
+    else if(p.col===0)lx-=off;
+    else if(p.col===COLS-1)lx+=off;
+    const act=startEnd&&((p.col===startEnd.fromCol&&p.row===startEnd.fromRow)||(p.col===startEnd.toCol&&p.row===startEnd.toRow));
+    s+=`<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="central" font-size="${act?14:12}" font-weight="${act?700:600}" fill="${act?'#c62828':'#666'}">${p.letter}</text>`;
+  }
+
+  s+=`</svg>`;
+  document.getElementById(containerId).innerHTML=s;
+}
+
+// ==================== APP STATE ====================
+let S={mode:null,maps:[],Qs:[],qi:0,ans:[],timer:null,tsec:0,testMapTimers:{}};
+
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  const idx={landing:0,practice:1,test:2,results:2,review:2}[name]||0;
+  document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+  if(name!=='test'){stopTimer();document.getElementById('timerDisplay').classList.remove('visible')}
+}
+
+// ==================== GENERATE SESSION ====================
+function genSession(count){
+  const maps=[],qs=[];
+  let total=0,seed=Date.now()+Math.floor(Math.random()*10000),att=0;
+  while(total<count&&att<300){
+    const map=genMap(seed+att);
+    const need=Math.min(10,count-total);
+    const questions=genQuestions(map,need,seed+att+5000);
+    if(questions.length>=Math.min(4,need)){
+      const batch=questions.slice(0,need);
+      maps.push(map);
+      for(const q of batch){q.mapIndex=maps.length-1;qs.push(q)}
+      total+=batch.length;
+    }
+    att++;seed+=7;
+  }
+  // Ensure exact count
+  while(qs.length<count&&qs.length>0){
+    const q={...qs[qs.length%qs.length]};qs.push(q);
+  }
+  return{maps,questions:qs.slice(0,count)};
+}
+
+// ==================== PRACTICE ====================
+function startPractice(){
+  const session=genSession(30);
+  S={...S,mode:'practice',maps:session.maps,Qs:session.questions,qi:0,ans:new Array(30).fill(''),checkedPractice:new Set()};
+  showScreen('practice');
+  renderPQ();
+}
+
+function renderPQ(){
+  const i=S.qi,q=S.Qs[i],map=S.maps[q.mapIndex];
+  document.getElementById('practiceMapNum').textContent=q.mapIndex+1;
+  document.getElementById('practiceCounter').textContent=`Question ${i+1} / 30`;
+  renderSVG(map,'practiceMapSvg',S.checkedPractice.has(i)?q.path:null,{fromCol:q.fromCol,fromRow:q.fromRow,toCol:q.toCol,toRow:q.toRow});
+
+  const el=document.getElementById('practiceQuestions');
+  let h='';
+  const lo=Math.max(0,i-3),hi=Math.min(29,i+6);
+  for(let j=lo;j<=hi;j++){
+    const qj=S.Qs[j];
+    let cls='question-item';
+    if(j===i)cls+=' current';
+    else if(S.checkedPractice.has(j)){cls+=parseInt(S.ans[j])===qj.answer?' correct':' incorrect'}
+
+    h+=`<div class="${cls}"><span class="q-number">${j+1}.</span><span class="q-route">${qj.from} to ${qj.to}</span>`;
+    if(j===i){
+      h+=`<input type="text" class="q-input${S.checkedPractice.has(i)?(parseInt(S.ans[i])===qj.answer?' correct-input':' incorrect-input'):''}" id="pInput" maxlength="2" value="${S.ans[i]}" ${S.checkedPractice.has(i)?'disabled ':' '}onkeydown="if(event.key==='Enter'){${S.checkedPractice.has(i)?'nextPracticeQuestion()':'checkPracticeAnswer()'}}" oninput="S.ans[${i}]=this.value.trim()">`;
+    }else if(S.checkedPractice.has(j)){
+      const ok=parseInt(S.ans[j])===qj.answer;
+      h+=`<span class="q-answer ${ok?'correct':'incorrect'}">${S.ans[j]||'—'}</span>`;
+      if(!ok)h+=`<span class="q-answer correct">(${qj.answer})</span>`;
+    }else{
+      h+=`<span class="q-answer">${S.ans[j]||'—'}</span>`;
+    }
+    h+=`</div>`;
+  }
+  el.innerHTML=h;
+
+  const fb=document.getElementById('practiceFeedback');
+  fb.className='feedback-banner';
+  if(S.checkedPractice.has(i)){
+    const ok=parseInt(S.ans[i])===q.answer;
+    fb.classList.add('show',ok?'correct-fb':'incorrect-fb');
+    fb.textContent=ok?`✓ Correct! The shortest route from ${q.from} to ${q.to} passes building ${q.answer}.`
+      :`✗ Incorrect. Your answer: ${S.ans[i]||'(blank)'}. Correct answer: building ${q.answer}.`;
+  }
+
+  document.getElementById('practiceCheckBtn').style.display=S.checkedPractice.has(i)?'none':'';
+  document.getElementById('practiceNextBtn').textContent=i<29?'Next →':'Finish';
+
+  setTimeout(()=>{const inp=document.getElementById('pInput');if(inp&&!inp.disabled)inp.focus()},50);
+}
+
+function checkPracticeAnswer(){
+  const i=S.qi,q=S.Qs[i];
+  const inp=document.getElementById('pInput');
+  if(inp)S.ans[i]=inp.value.trim();
+  S.checkedPractice.add(i);
+  renderPQ();
+}
+
+function nextPracticeQuestion(){
+  if(!S.checkedPractice.has(S.qi))checkPracticeAnswer();
+  if(S.qi>=29){
+    let c=0;for(let i=0;i<30;i++)if(parseInt(S.ans[i])===S.Qs[i].answer)c++;
+    alert(`Practice complete!\n\nScore: ${c}/30 (${Math.round(c/30*100)}%)`);
+    showScreen('landing');return;
+  }
+  S.qi++;renderPQ();
+}
+
+// ==================== TEST ====================
+function confirmStartTest(){document.getElementById('confirmModal').classList.add('show')}
+function closeModal(){document.getElementById('confirmModal').classList.remove('show')}
+
+function startTest(){
+  closeModal();
+  const session=genSession(60);
+  S={...S,mode:'test',maps:session.maps,Qs:session.questions,qi:0,ans:new Array(60).fill(''),currentTestMap:-1};
+  showScreen('test');
+  startMapTimer();
+  renderTQ();
+}
+
+function startMapTimer(){
+  const mi=S.Qs[S.qi].mapIndex;
+  if(mi===S.currentTestMap)return;
+  S.currentTestMap=mi;
+  startTimer(180);
+}
+
+function renderTQ(){
+  const i=S.qi,q=S.Qs[i],map=S.maps[q.mapIndex];
+  document.getElementById('testMapNum').textContent=q.mapIndex+1;
+  document.getElementById('testCounter').textContent=`Question ${i+1} / 60`;
+  renderSVG(map,'testMapSvg',null,{fromCol:q.fromCol,fromRow:q.fromRow,toCol:q.toCol,toRow:q.toRow});
+
+  const el=document.getElementById('testQuestions');
+  let h='';
+  // Show all questions for current map
+  for(let j=0;j<60;j++){
+    if(S.Qs[j].mapIndex!==q.mapIndex)continue;
+    const qj=S.Qs[j];
+    let cls='question-item';
+    if(j===i)cls+=' current';
+    h+=`<div class="${cls}" style="cursor:pointer" onclick="jumpTQ(${j})">`;
+    h+=`<span class="q-number">${j+1}.</span><span class="q-route">${qj.from} to ${qj.to}</span>`;
+    if(j===i){
+      h+=`<input type="text" class="q-input" id="tInput" maxlength="2" value="${S.ans[i]}" onkeydown="if(event.key==='Enter')nextTestQuestion()" oninput="S.ans[${i}]=this.value.trim()" onclick="event.stopPropagation()">`;
+    }else{
+      h+=`<span class="q-answer">${S.ans[j]||'—'}</span>`;
+    }
+    h+=`</div>`;
+  }
+  el.innerHTML=h;
+
+  document.getElementById('testNextBtn').style.display=i<59?'':'none';
+  document.getElementById('testSubmitBtn').style.display=i>=59?'':'none';
+  setTimeout(()=>{const inp=document.getElementById('tInput');if(inp)inp.focus()},50);
+}
+
+function jumpTQ(idx){
+  const inp=document.getElementById('tInput');
+  if(inp)S.ans[S.qi]=inp.value.trim();
+  S.qi=idx;
+  startMapTimer();
+  renderTQ();
+}
+
+function nextTestQuestion(){
+  const inp=document.getElementById('tInput');
+  if(inp)S.ans[S.qi]=inp.value.trim();
+  if(S.qi>=59){submitTest();return}
+  S.qi++;
+  startMapTimer();
+  renderTQ();
+}
+
+function submitTest(){
+  const inp=document.getElementById('tInput');
+  if(inp)S.ans[S.qi]=inp.value.trim();
+  stopTimer();
+  showResults();
+}
+
+function showResults(){
+  let c=0,w=0,u=0;
+  const total=S.Qs.length;
+  for(let i=0;i<total;i++){
+    const v=S.ans[i];
+    if(!v)u++;else if(parseInt(v)===S.Qs[i].answer)c++;else w++;
+  }
+  document.getElementById('resultsScore').textContent=`${c}/${total}`;
+  document.getElementById('resultsPercent').textContent=`${Math.round(c/total*100)}% correct`;
+  document.getElementById('resultsCorrect').textContent=c;
+  document.getElementById('resultsIncorrect').textContent=w;
+  document.getElementById('resultsUnanswered').textContent=u;
+  showScreen('results');
+}
+
+// ==================== REVIEW ====================
+let rmi=0;
+function reviewTest(){rmi=0;showScreen('review');renderRM()}
+function renderRM(){
+  const mqs=[];
+  for(let i=0;i<S.Qs.length;i++)if(S.Qs[i].mapIndex===rmi)mqs.push({...S.Qs[i],gi:i});
+  if(!mqs.length&&rmi<S.maps.length-1){rmi++;renderRM();return}
+  if(!mqs.length)return;
+
+  const map=S.maps[rmi];
+  document.getElementById('reviewMapNum').textContent=rmi+1;
+  document.getElementById('reviewCounter').textContent=`Map ${rmi+1} of ${S.maps.length}`;
+  renderSVG(map,'reviewMapSvg',null,null);
+
+  const el=document.getElementById('reviewQuestions');
+  let h='';
+  for(const q of mqs){
+    const v=S.ans[q.gi],ok=parseInt(v)===q.answer,empty=!v;
+    let cls='question-item';if(!empty)cls+=ok?' correct':' incorrect';
+    h+=`<div class="${cls}"><span class="q-number">${q.gi+1}.</span><span class="q-route">${q.from} to ${q.to}</span>`;
+    h+=`<span class="q-answer ${ok?'correct':empty?'':'incorrect'}">${v||'—'}</span>`;
+    if(!ok)h+=`<span class="q-answer correct">(${q.answer})</span>`;
+    h+=`</div>`;
+  }
+  el.innerHTML=h;
+}
+function nextReviewMap(){if(rmi<S.maps.length-1){rmi++;renderRM()}}
+function prevReviewMap(){if(rmi>0){rmi--;renderRM()}}
+
+// ==================== TIMER ====================
+function startTimer(sec){
+  stopTimer();
+  S.tsec=sec;
+  const d=document.getElementById('timerDisplay');
+  d.classList.add('visible');d.classList.remove('warning');
+  updTimer();
+  S.timer=setInterval(()=>{
+    S.tsec--;
+    if(S.tsec<=30)d.classList.add('warning');
+    if(S.tsec<=0){
+      // Auto-advance to next map or submit
+      stopTimer();
+      const inp=document.getElementById('tInput');
+      if(inp)S.ans[S.qi]=inp.value.trim();
+      // Find next map question
+      const curMap=S.Qs[S.qi].mapIndex;
+      let nextIdx=-1;
+      for(let i=S.qi+1;i<S.Qs.length;i++){
+        if(S.Qs[i].mapIndex!==curMap){nextIdx=i;break}
+      }
+      if(nextIdx>=0){S.qi=nextIdx;startMapTimer();renderTQ()}
+      else{submitTest()}
+      return;
+    }
+    updTimer();
+  },1000);
+}
+function stopTimer(){if(S.timer){clearInterval(S.timer);S.timer=null}}
+function updTimer(){
+  const m=Math.floor(S.tsec/60),s=S.tsec%60;
+  document.getElementById('timerDisplay').textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+</script>
+</body>
+</html>

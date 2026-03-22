@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cube Comparisons Test — icstaptitude.com</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700;900&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  min-height: 100vh;
+  background: #fafaf8;
+  font-family: 'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+  color: #1a1a1a;
+}
+
+/* ─── HEADER ─── */
+.header {
+  background: linear-gradient(135deg, #c8102e 0%, #a00d24 100%);
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  box-shadow: 0 2px 12px rgba(200,16,46,0.25);
+}
+.header-badge {
+  background: white;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-weight: 900;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  color: #c8102e;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.header-text { color: white; }
+.header-title { font-size: 1.15rem; font-weight: 700; letter-spacing: 0.02em; }
+.header-sub { font-size: 0.78rem; opacity: 0.85; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; margin-top: 2px; }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 20px; }
+
+/* ─── CONTAINER / CARD ─── */
+.container { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+.card {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 24px rgba(0,0,0,0.04);
+  border: 1px solid #eee;
+  padding: 36px 40px;
+  margin-top: 32px;
+}
+
+/* ─── BUTTONS ─── */
+.btn {
+  padding: 12px 32px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.02em;
+  transition: all 0.2s ease;
+}
+.btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.btn:active { transform: translateY(0); filter: brightness(0.97); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; filter: none; }
+
+.btn-primary {
+  background: linear-gradient(135deg, #c8102e, #e03050);
+  color: white;
+  box-shadow: 0 2px 8px rgba(200,16,46,0.3);
+}
+.btn-secondary {
+  background: #f3f3f0;
+  color: #1a1a1a;
+  border: 2px solid #ddd;
+}
+.btn-dark {
+  background: linear-gradient(135deg, #1a1a1a, #333);
+  color: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.btn-same {
+  background: linear-gradient(135deg, #0d7c4a, #10a060);
+  color: white;
+  box-shadow: 0 2px 8px rgba(13,124,74,0.3);
+  padding: 18px 44px;
+  font-size: 1.05rem;
+}
+.btn-diff {
+  background: linear-gradient(135deg, #c8102e, #e03050);
+  color: white;
+  box-shadow: 0 2px 8px rgba(200,16,46,0.3);
+  padding: 18px 44px;
+  font-size: 1.05rem;
+}
+.btn-exit {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  border-radius: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-family: inherit;
+  font-weight: 600;
+}
+.btn-exit:hover { background: rgba(255,255,255,0.25); }
+
+.btn-block { width: 100%; padding: 20px; }
+.btn-step-label { font-size: 0.75rem; opacity: 0.8; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.1em; }
+
+/* ─── PROGRESS BAR ─── */
+.progress-track { width: 100%; height: 6px; background: #e5e5e5; border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #c8102e, #e03050); border-radius: 3px; transition: width 0.3s ease; }
+
+/* ─── TIMER ─── */
+.timer {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #1a1a1a;
+}
+.timer.low { color: #c8102e; animation: pulse 1s infinite; }
+.timer-label { color: rgba(255,255,255,0.7); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 2px; text-align: right; }
+
+/* ─── CUBES AREA ─── */
+.cubes-row { display: flex; justify-content: center; align-items: center; gap: 40px; padding: 20px 0 28px; flex-wrap: wrap; }
+.cube-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: #999; font-weight: 600; margin-bottom: 10px; text-align: center; }
+.cube-wrap { background: #fafaf8; border-radius: 12px; padding: 16px; border: 1px solid #eee; }
+.vs-divider { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.vs-line { width: 2px; height: 40px; }
+.vs-line-top { background: linear-gradient(to bottom, transparent, #ddd); }
+.vs-line-bot { background: linear-gradient(to bottom, #ddd, transparent); }
+.vs-circle { width: 44px; height: 44px; border-radius: 50%; border: 2px solid #ddd; display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 700; color: #aaa; }
+
+.answer-btns { display: flex; justify-content: center; gap: 20px; padding-top: 8px; }
+
+/* ─── FEEDBACK ─── */
+.feedback-badge { position: absolute; top: 12px; right: 16px; padding: 6px 16px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; color: white; z-index: 10; }
+.feedback-correct { background: linear-gradient(135deg, #0d7c4a, #10a060); }
+.feedback-incorrect { background: linear-gradient(135deg, #c8102e, #e03050); }
+.card.border-correct { border-color: #0d7c4a; border-width: 2px; }
+.card.border-incorrect { border-color: #c8102e; border-width: 2px; }
+
+/* ─── RESULTS ─── */
+.score-circle { width: 100px; height: 100px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-direction: column; margin: 0 auto 16px; }
+.score-circle.positive { background: linear-gradient(135deg, #d4edda, #c3e6cb); }
+.score-circle.negative { background: linear-gradient(135deg, #f8d7da, #f5c6cb); }
+.score-num { font-size: 2.2rem; font-weight: 900; font-family: 'IBM Plex Mono', monospace; line-height: 1; }
+.score-num.positive { color: #0d7c4a; }
+.score-num.negative { color: #c8102e; }
+.score-label { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.12em; color: #666; font-weight: 600; }
+.stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+.stat-box { text-align: center; padding: 16px 8px; background: #fafaf8; border-radius: 10px; border: 1px solid #eee; }
+.stat-val { font-size: 1.6rem; font-weight: 900; font-family: 'IBM Plex Mono', monospace; }
+.stat-lbl { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: #999; font-weight: 600; margin-top: 4px; }
+.meta-row { display: flex; justify-content: center; gap: 32px; margin-bottom: 24px; padding: 16px 0; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
+.meta-lbl { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.1em; color: #999; font-weight: 600; }
+.meta-val { font-size: 1.1rem; font-weight: 700; font-family: 'IBM Plex Mono', monospace; }
+
+.info-box { border-radius: 10px; padding: 16px 20px; margin: 20px 0; font-size: 0.88rem; line-height: 1.6; }
+.info-box.neutral { background: #f8f8f5; border: 1px solid #eee; color: #555; }
+.info-box.warning { background: #fff3cd; border: 1px solid #ffc107; color: #555; }
+.info-box.info { background: #e8f4fd; border: 1px solid #b3d9f2; color: #555; }
+.info-box.grey { background: #f0f0ec; border: 1px solid #ddd; color: #555; }
+
+.example-block { background: #f8f8f5; border-radius: 12px; padding: 24px 28px; margin: 24px 0; border: 1px solid #eee; }
+
+/* ─── REVIEW LIST ─── */
+.review-list { margin-top: 12px; max-height: 300px; overflow-y: auto; font-size: 0.85rem; }
+.review-item { display: flex; align-items: center; padding: 8px 12px; border-radius: 6px; margin-bottom: 4px; gap: 10px; }
+.review-item.correct { background: rgba(212,237,218,0.3); }
+.review-item.incorrect { background: rgba(248,215,218,0.3); }
+.review-icon { width: 28px; height: 28px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+
+/* ─── HOME EXTRAS ─── */
+.tag-pill { display: inline-block; background: linear-gradient(135deg, rgba(200,16,46,0.08), rgba(200,16,46,0.03)); border-radius: 12px; padding: 8px 20px; margin-bottom: 16px; }
+.tag-pill span { font-size: 0.78rem; font-weight: 700; color: #c8102e; text-transform: uppercase; letter-spacing: 0.12em; }
+.home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 28px; }
+.home-cubes { display: flex; justify-content: center; gap: 20px; align-items: center; margin: 32px 0; }
+.vs-text { font-size: 2rem; color: #ccc; font-weight: 300; }
+.footer { text-align: center; color: #aaa; font-size: 0.75rem; margin-top: 20px; padding-bottom: 20px; }
+
+/* ─── ANIMATIONS ─── */
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.6} }
+@keyframes fadeIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+@keyframes shakeX { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+@keyframes correctFlash { 0%{background:#d4edda} 100%{background:white} }
+@keyframes incorrectFlash { 0%{background:#f8d7da} 100%{background:white} }
+
+.anim-fade { animation: fadeIn 0.5s ease; }
+.anim-shake { animation: shakeX 0.4s ease; }
+.anim-correct-flash { animation: correctFlash 0.8s ease; }
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+@media (max-width: 600px) {
+  .card { padding: 24px 20px; }
+  .cubes-row { gap: 16px; }
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .home-grid { grid-template-columns: 1fr; }
+  .meta-row { flex-wrap: wrap; gap: 16px; }
+  .header { padding: 12px 16px; gap: 12px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HOME SCREEN ═══════════ -->
+<div id="screen-home" class="screen active">
+  <header class="header">
+    <div class="header-badge">CST</div>
+    <div class="header-text">
+      <div class="header-title">icstaptitude.com</div>
+      <div class="header-sub">CST Aptitude Practice</div>
+    </div>
+  </header>
+  <div class="container">
+    <div class="card anim-fade">
+      <div style="text-align:center;margin-bottom:32px;">
+        <div class="tag-pill"><span>Core Surgical Training — Aptitude Assessment</span></div>
+        <h1 style="font-size:2rem;font-weight:900;letter-spacing:-0.02em;line-height:1.2;margin-bottom:10px;">Cube Comparisons Test</h1>
+        <p style="color:#666;font-size:1rem;max-width:520px;margin:0 auto;line-height:1.6;">
+          Test your spatial reasoning by comparing pairs of cubes and determining
+          if they are the same cube shown from different angles, or two different cubes.
+        </p>
+      </div>
+      <div class="home-cubes">
+        <div id="home-cube1"></div>
+        <div class="vs-text">vs</div>
+        <div id="home-cube2"></div>
+      </div>
+      <div class="home-grid">
+        <button class="btn btn-primary btn-block" onclick="showScreen('instructions')">
+          <div class="btn-step-label">Step 1</div>Read Instructions
+        </button>
+        <button class="btn btn-secondary btn-block" onclick="startMode('practice')">
+          <div class="btn-step-label" style="opacity:0.6">Step 2</div>Practice Mode
+        </button>
+      </div>
+      <button class="btn btn-dark btn-block" style="margin-top:12px;" onclick="startMode('test')">
+        <div class="btn-step-label" style="opacity:0.7">Step 3</div>Timed Test — 60 Trials / 3 Minutes
+      </button>
+    </div>
+    <p class="footer">Practice tool for CST applicants — icstaptitude.com</p>
+  </div>
+</div>
+
+<!-- ═══════════ INSTRUCTIONS SCREEN ═══════════ -->
+<div id="screen-instructions" class="screen">
+  <header class="header">
+    <div class="header-badge">CST</div>
+    <div class="header-text">
+      <div class="header-title">icstaptitude.com</div>
+      <div class="header-sub">Cube Comparisons Test — Instructions</div>
+    </div>
+  </header>
+  <div class="container">
+    <div class="card">
+      <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:20px;">How It Works</h2>
+      <div style="line-height:1.75;color:#333;font-size:0.95rem;">
+        <p style="margin-bottom:16px;">
+          Each question shows two drawings of cubes. Each cube has <strong>6 faces</strong> with
+          a different letter, number, or symbol on each face. <strong>No symbol appears more than once</strong> on a given cube.
+        </p>
+        <p style="margin-bottom:16px;">
+          Your task is to decide whether the two drawings could represent the <strong>same cube</strong> viewed
+          from different angles, or whether they must be <strong>different cubes</strong>.
+        </p>
+
+        <div class="example-block">
+          <h3 style="font-size:1rem;font-weight:700;margin-bottom:16px;color:#0d7c4a;">Example — SAME Cube</h3>
+          <div style="display:flex;align-items:center;gap:24px;justify-content:center;margin-bottom:12px;" id="instr-same-cubes"></div>
+          <p style="font-size:0.88rem;color:#555;">
+            If cube A is rotated so the × on top is replaced by ○, and B (which was hidden)
+            becomes visible as C — these <em>could</em> be the same cube turned on its side.
+            The key is that no visible face contradicts the first cube's arrangement.
+          </p>
+        </div>
+
+        <div class="example-block">
+          <h3 style="font-size:1rem;font-weight:700;margin-bottom:16px;color:#c8102e;">Example — DIFFERENT Cubes</h3>
+          <div style="display:flex;align-items:center;gap:24px;justify-content:center;margin-bottom:12px;" id="instr-diff-cubes"></div>
+          <p style="font-size:0.88rem;color:#555;">
+            If the A on the left cube faces you with N on top, then N should still
+            be adjacent to A on the right cube — but N is nowhere to be seen, replaced by
+            symbols that contradict the first cube. These must be different cubes.
+          </p>
+        </div>
+
+        <div class="info-box warning">
+          <strong>⚠ Scoring:</strong> Your score = <strong>correct answers − incorrect answers</strong>.
+          Guessing randomly will not help. Only answer if you have some idea which choice is correct.
+          Unanswered questions do not count against you.
+        </div>
+        <div class="info-box info">
+          <strong>⏱ Timing:</strong> In test mode, you have <strong>3 minutes</strong> for 60 trials.
+          Work quickly but accurately. In practice mode, there is no time limit and you get feedback.
+        </div>
+        <div class="info-box grey">
+          <strong>⌨ Keyboard shortcuts:</strong> Press <strong>S</strong> for Same, <strong>D</strong> for Different.
+        </div>
+      </div>
+      <div style="display:flex;gap:12px;margin-top:28px;flex-wrap:wrap;">
+        <button class="btn btn-secondary" onclick="showScreen('home')">← Back</button>
+        <button class="btn btn-primary" onclick="startMode('practice')">Start Practice</button>
+        <button class="btn btn-dark" onclick="startMode('test')">Start Timed Test</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ GAME SCREEN (practice + test) ═══════════ -->
+<div id="screen-game" class="screen">
+  <header class="header">
+    <div class="header-badge">CST</div>
+    <div class="header-text">
+      <div class="header-title">icstaptitude.com</div>
+      <div class="header-sub" id="game-subtitle">Cube Comparisons — Practice</div>
+    </div>
+    <div class="header-right">
+      <div id="timer-area" style="text-align:right;display:none;">
+        <div class="timer-label" id="timer-label">Click to Start</div>
+        <div class="timer" id="timer-display">03:00</div>
+      </div>
+      <button class="btn-exit" onclick="exitGame()">Exit</button>
+    </div>
+  </header>
+  <div class="container">
+    <div style="margin-top:24px;margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:0.82rem;color:#888;">
+        <span id="progress-text">Question 1 of 30</span>
+        <span id="score-text">0 correct / 0 answered</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+
+    <div class="card" id="game-card" style="position:relative;">
+      <div class="feedback-badge" id="feedback-badge" style="display:none;"></div>
+      <div class="cubes-row">
+        <div>
+          <div class="cube-label">Cube A</div>
+          <div class="cube-wrap" id="cube-a"></div>
+        </div>
+        <div class="vs-divider">
+          <div class="vs-line vs-line-top"></div>
+          <div class="vs-circle">VS</div>
+          <div class="vs-line vs-line-bot"></div>
+        </div>
+        <div>
+          <div class="cube-label">Cube B</div>
+          <div class="cube-wrap" id="cube-b"></div>
+        </div>
+      </div>
+      <div class="answer-btns">
+        <button class="btn btn-same" id="btn-same" onclick="handleAnswer('same')"><span style="font-size:1.1rem;margin-right:6px;">S</span> Same</button>
+        <button class="btn btn-diff" id="btn-diff" onclick="handleAnswer('different')"><span style="font-size:1.1rem;margin-right:6px;">D</span> Different</button>
+      </div>
+      <p id="timer-hint" style="text-align:center;color:#999;font-size:0.82rem;margin-top:16px;font-style:italic;display:none;">
+        Timer starts when you answer the first question
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ RESULTS SCREEN ═══════════ -->
+<div id="screen-results" class="screen">
+  <header class="header">
+    <div class="header-badge">CST</div>
+    <div class="header-text">
+      <div class="header-title">icstaptitude.com</div>
+      <div class="header-sub">Cube Comparisons — Results</div>
+    </div>
+  </header>
+  <div class="container">
+    <div class="card anim-fade">
+      <div style="text-align:center;margin-bottom:28px;">
+        <div class="score-circle" id="result-circle">
+          <div class="score-num" id="result-score">0</div>
+          <div class="score-label">Score</div>
+        </div>
+        <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:4px;" id="result-heading">Practice Complete</h2>
+        <p style="color:#888;font-size:0.9rem;" id="result-sub">30 practice trials</p>
+      </div>
+
+      <div class="stat-grid" id="stat-grid"></div>
+
+      <div class="meta-row" id="meta-row" style="display:none;"></div>
+
+      <div class="info-box neutral" id="score-formula"></div>
+
+      <details style="margin-bottom:24px;">
+        <summary style="cursor:pointer;font-weight:700;font-size:0.92rem;color:#555;padding:8px 0;" id="review-summary">Review Answers (0 trials)</summary>
+        <div class="review-list" id="review-list"></div>
+      </details>
+
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button class="btn btn-secondary" onclick="showScreen('home')">← Home</button>
+        <button class="btn btn-primary" onclick="startMode('practice')">Practice Again</button>
+        <button class="btn btn-dark" onclick="startMode('test')">Retake Test</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// CUBE ROTATION MATH
+// Faces: [top, front, right, bottom, back, left]
+// ═══════════════════════════════════════════
+const rotateY  = c => [c[0], c[5], c[1], c[3], c[2], c[4]];
+const rotateYi = c => [c[0], c[2], c[4], c[3], c[5], c[1]];
+const rotateX  = c => [c[4], c[0], c[2], c[1], c[3], c[5]];
+const rotateXi = c => [c[1], c[3], c[2], c[4], c[0], c[5]];
+const rotateZ  = c => [c[5], c[1], c[0], c[2], c[4], c[3]];
+const rotateZi = c => [c[2], c[1], c[3], c[5], c[4], c[0]];
+const ROTATIONS = [rotateY, rotateYi, rotateX, rotateXi, rotateZ, rotateZi];
+
+function applyRandomRotations(cube, n) {
+  let r = [...cube];
+  for (let i = 0; i < n; i++) r = ROTATIONS[Math.floor(Math.random() * 6)](r);
+  return r;
+}
+
+// ═══════════════════════════════════════════
+// SYMBOLS & HELPERS
+// ═══════════════════════════════════════════
+const SYMBOLS = [
+  "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R",
+  "S","T","U","V","W","X","Y","Z","1","2","3","4","5","6","7","8","9",
+  "×","○","△","□","◇","★","♠","♦","♣","♥","Ω","Σ","Δ","Ψ","Φ","Π"
+];
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function pickUnique(n) { return shuffle(SYMBOLS).slice(0, n); }
+
+// ═══════════════════════════════════════════
+// TRIAL GENERATION
+// ═══════════════════════════════════════════
+function generateTrial() {
+  const isSame = Math.random() < 0.5;
+  const cube1 = pickUnique(6);
+
+  if (isSame) {
+    const numRot = 2 + Math.floor(Math.random() * 3);
+    let cube2 = applyRandomRotations(cube1, numRot);
+    let att = 0;
+    while (cube2[0]===cube1[0] && cube2[1]===cube1[1] && cube2[2]===cube1[2] && att < 20) {
+      cube2 = applyRandomRotations(cube1, numRot); att++;
+    }
+    return { cube1, cube2, answer: "same" };
+  } else {
+    const symbols2 = pickUnique(6);
+    const shareCount = Math.floor(Math.random() * 2) + 1;
+    for (let i = 0; i < shareCount && i < 3; i++) {
+      const vis = Math.floor(Math.random() * 3);
+      const wrong = [0,1,2].filter(x=>x!==vis)[Math.floor(Math.random()*2)];
+      symbols2[wrong] = cube1[vis];
+    }
+    const used = new Set();
+    const cube2 = symbols2.map(s => {
+      if (used.has(s)) { const rep = SYMBOLS.find(x => !used.has(x) && !symbols2.includes(x)); used.add(rep); return rep; }
+      used.add(s); return s;
+    });
+    return { cube1, cube2, answer: "different" };
+  }
+}
+
+function generateTrials(n) {
+  const half = Math.floor(n/2);
+  const types = shuffle([...Array(half).fill(true), ...Array(n-half).fill(false)]);
+  const trials = [];
+  for (let i = 0; i < n; i++) {
+    let t; do { t = generateTrial(); } while ((types[i] && t.answer!=="same")||(!types[i] && t.answer!=="different"));
+    trials.push(t);
+  }
+  return trials;
+}
+
+// ═══════════════════════════════════════════
+// SVG CUBE RENDERER
+// ═══════════════════════════════════════════
+function makeCubeSVG(top, front, right, size) {
+  size = size || 200;
+  const s = size * 0.42, ox = size * 0.32, oy = size * 0.15, d = s * 0.7;
+
+  const ff = [[ox,oy+d],[ox+s,oy+d],[ox+s,oy+d+s],[ox,oy+d+s]];
+  const tf = [[ox,oy+d],[ox+s,oy+d],[ox+s+d*0.65,oy+d-d*0.65],[ox+d*0.65,oy+d-d*0.65]];
+  const rf = [[ox+s,oy+d],[ox+s+d*0.65,oy+d-d*0.65],[ox+s+d*0.65,oy+d+s-d*0.65],[ox+s,oy+d+s]];
+
+  const toP = pts => "M"+pts.map(p=>p.join(",")).join("L")+"Z";
+  const ctr = pts => [pts.reduce((a,p)=>a+p[0],0)/pts.length, pts.reduce((a,p)=>a+p[1],0)/pts.length];
+  const fc=ctr(ff), tc=ctr(tf), rc=ctr(rf);
+  const fs = s*0.48;
+
+  // Escape special XML characters
+  const esc = t => t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  return `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
+    <path d="${toP(ff)}" fill="#f0f0f0" stroke="#1a1a1a" stroke-width="1.8"/>
+    <path d="${toP(tf)}" fill="#d8d8d8" stroke="#1a1a1a" stroke-width="1.8"/>
+    <path d="${toP(rf)}" fill="#e4e4e4" stroke="#1a1a1a" stroke-width="1.8"/>
+    <text x="${fc[0]}" y="${fc[1]+fs*0.1}" text-anchor="middle" dominant-baseline="central" font-size="${fs}" font-family="'IBM Plex Mono','Courier New',monospace" font-weight="700" fill="#1a1a1a">${esc(front)}</text>
+    <text x="${tc[0]}" y="${tc[1]+fs*0.05}" text-anchor="middle" dominant-baseline="central" font-size="${fs*0.82}" font-family="'IBM Plex Mono','Courier New',monospace" font-weight="700" fill="#1a1a1a" transform="rotate(-33,${tc[0]},${tc[1]}) skewX(10)">${esc(top)}</text>
+    <text x="${rc[0]}" y="${rc[1]+fs*0.08}" text-anchor="middle" dominant-baseline="central" font-size="${fs*0.82}" font-family="'IBM Plex Mono','Courier New',monospace" font-weight="700" fill="#1a1a1a" transform="skewY(-33) translate(${rc[0]*0.15},${rc[1]*0.42})">${esc(right)}</text>
+  </svg>`;
+}
+
+// ═══════════════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════════════
+let state = {
+  mode: "practice",
+  trials: [],
+  currentTrial: 0,
+  answers: [],
+  timeLeft: 180,
+  timerRunning: false,
+  hasStarted: false,
+  feedbackTimeout: null,
+  timerInterval: null,
+};
+
+// ═══════════════════════════════════════════
+// SCREEN NAVIGATION
+// ═══════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+function exitGame() {
+  clearInterval(state.timerInterval);
+  clearTimeout(state.feedbackTimeout);
+  state.timerRunning = false;
+  showScreen('home');
+}
+
+// ═══════════════════════════════════════════
+// START MODE
+// ═══════════════════════════════════════════
+function startMode(mode) {
+  clearInterval(state.timerInterval);
+  clearTimeout(state.feedbackTimeout);
+
+  const count = mode === "practice" ? 30 : 60;
+  state.mode = mode;
+  state.trials = generateTrials(count);
+  state.currentTrial = 0;
+  state.answers = [];
+  state.timeLeft = 180;
+  state.timerRunning = false;
+  state.hasStarted = false;
+
+  const sub = document.getElementById('game-subtitle');
+  sub.textContent = "Cube Comparisons — " + (mode === "practice" ? "Practice" : "Timed Test");
+
+  const timerArea = document.getElementById('timer-area');
+  const timerHint = document.getElementById('timer-hint');
+
+  if (mode === "test") {
+    timerArea.style.display = "block";
+    timerHint.style.display = "block";
+    updateTimerDisplay();
+    document.getElementById('timer-label').textContent = "Click to Start";
+  } else {
+    timerArea.style.display = "none";
+    timerHint.style.display = "none";
+  }
+
+  renderTrial();
+  showScreen('game');
+}
+
+// ═══════════════════════════════════════════
+// RENDER TRIAL
+// ═══════════════════════════════════════════
+function renderTrial() {
+  const trial = state.trials[state.currentTrial];
+  const total = state.trials.length;
+  const correctCount = state.answers.filter(a => a.isCorrect).length;
+
+  document.getElementById('cube-a').innerHTML = makeCubeSVG(trial.cube1[0], trial.cube1[1], trial.cube1[2], 200);
+  document.getElementById('cube-b').innerHTML = makeCubeSVG(trial.cube2[0], trial.cube2[1], trial.cube2[2], 200);
+
+  document.getElementById('progress-text').textContent = `Question ${state.currentTrial+1} of ${total}`;
+  document.getElementById('score-text').textContent = `${correctCount} correct / ${state.answers.length} answered`;
+  document.getElementById('progress-fill').style.width = ((state.currentTrial+1)/total*100) + "%";
+
+  document.getElementById('feedback-badge').style.display = "none";
+  const card = document.getElementById('game-card');
+  card.className = "card";
+  card.style.animation = "fadeIn 0.3s ease";
+  // Reset animation
+  void card.offsetWidth;
+
+  document.getElementById('btn-same').disabled = false;
+  document.getElementById('btn-diff').disabled = false;
+}
+
+// ═══════════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════════
+function startTimer() {
+  state.timerRunning = true;
+  document.getElementById('timer-label').textContent = "Time Left";
+  document.getElementById('timer-hint').style.display = "none";
+
+  state.timerInterval = setInterval(() => {
+    state.timeLeft--;
+    updateTimerDisplay();
+    if (state.timeLeft <= 0) {
+      clearInterval(state.timerInterval);
+      state.timerRunning = false;
+      showResults();
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(state.timeLeft / 60);
+  const s = state.timeLeft % 60;
+  const el = document.getElementById('timer-display');
+  el.textContent = String(m).padStart(2,"0") + ":" + String(s).padStart(2,"0");
+  el.className = "timer" + (state.timeLeft <= 30 ? " low" : "");
+}
+
+// ═══════════════════════════════════════════
+// HANDLE ANSWER
+// ═══════════════════════════════════════════
+function handleAnswer(ans) {
+  if (document.getElementById('btn-same').disabled) return;
+
+  if (!state.hasStarted && state.mode === "test") {
+    state.hasStarted = true;
+    startTimer();
+  }
+
+  const trial = state.trials[state.currentTrial];
+  const isCorrect = ans === trial.answer;
+  state.answers.push({ given: ans, correct: trial.answer, isCorrect });
+
+  if (state.mode === "practice") {
+    // Show feedback
+    document.getElementById('btn-same').disabled = true;
+    document.getElementById('btn-diff').disabled = true;
+
+    const badge = document.getElementById('feedback-badge');
+    badge.style.display = "block";
+    badge.className = "feedback-badge " + (isCorrect ? "feedback-correct" : "feedback-incorrect");
+    badge.innerHTML = (isCorrect ? "✓ Correct!" : "✗ Incorrect") +
+      ` <span style="font-size:0.78rem;font-weight:500;margin-left:8px;">(${trial.answer === "same" ? "Same" : "Different"})</span>`;
+
+    const card = document.getElementById('game-card');
+    card.className = "card " + (isCorrect ? "border-correct" : "border-incorrect");
+    card.style.animation = isCorrect ? "none" : "";
+    if (!isCorrect) { card.style.animation = "shakeX 0.4s ease"; }
+
+    state.feedbackTimeout = setTimeout(() => {
+      if (state.currentTrial + 1 >= state.trials.length) {
+        showResults();
+      } else {
+        state.currentTrial++;
+        renderTrial();
+      }
+    }, 1200);
+  } else {
+    // Test mode — no feedback, move on
+    if (state.currentTrial + 1 >= state.trials.length) {
+      clearInterval(state.timerInterval);
+      state.timerRunning = false;
+      showResults();
+    } else {
+      state.currentTrial++;
+      renderTrial();
+    }
+  }
+}
+
+// ═══════════════════════════════════════════
+// RESULTS
+// ═══════════════════════════════════════════
+function showResults() {
+  const totalAnswered = state.answers.length;
+  const correctCount = state.answers.filter(a => a.isCorrect).length;
+  const incorrectCount = totalAnswered - correctCount;
+  const score = correctCount - incorrectCount;
+  const unanswered = state.trials.length - totalAnswered;
+  const isPractice = state.mode === "practice";
+  const timeTaken = isPractice ? null : 180 - state.timeLeft;
+  const pctCorrect = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0;
+
+  // Score circle
+  const circle = document.getElementById('result-circle');
+  circle.className = "score-circle " + (score >= 0 ? "positive" : "negative");
+  const scoreNum = document.getElementById('result-score');
+  scoreNum.textContent = score;
+  scoreNum.className = "score-num " + (score >= 0 ? "positive" : "negative");
+
+  // Heading
+  document.getElementById('result-heading').textContent =
+    isPractice ? "Practice Complete" : (state.timeLeft === 0 ? "Time's Up!" : "Test Complete");
+  document.getElementById('result-sub').textContent =
+    isPractice ? "30 practice trials" : "60-trial timed test";
+
+  // Stats grid
+  const stats = [
+    { label: "Answered", value: totalAnswered, color: "#1a1a1a" },
+    { label: "Correct", value: correctCount, color: "#0d7c4a" },
+    { label: "Incorrect", value: incorrectCount, color: "#c8102e" },
+    { label: "Unanswered", value: unanswered, color: "#888" },
+  ];
+  document.getElementById('stat-grid').innerHTML = stats.map(s =>
+    `<div class="stat-box"><div class="stat-val" style="color:${s.color}">${s.value}</div><div class="stat-lbl">${s.label}</div></div>`
+  ).join('');
+
+  // Meta row (test only)
+  const metaRow = document.getElementById('meta-row');
+  if (!isPractice && timeTaken !== null) {
+    metaRow.style.display = "flex";
+    const mins = Math.floor(timeTaken/60);
+    const secs = String(timeTaken%60).padStart(2,"0");
+    const perQ = totalAnswered > 0 ? (timeTaken/totalAnswered).toFixed(1) : "—";
+    metaRow.innerHTML = `
+      <div style="text-align:center"><div class="meta-lbl">Time Used</div><div class="meta-val">${mins}:${secs}</div></div>
+      <div style="text-align:center"><div class="meta-lbl">Accuracy</div><div class="meta-val">${pctCorrect}%</div></div>
+      <div style="text-align:center"><div class="meta-lbl">Per Question</div><div class="meta-val">${perQ}s</div></div>
+    `;
+  } else {
+    metaRow.style.display = "none";
+  }
+
+  // Score formula
+  document.getElementById('score-formula').innerHTML =
+    `<strong>Score formula:</strong> Correct (${correctCount}) − Incorrect (${incorrectCount}) = <strong>${score}</strong><br>Unanswered questions (${unanswered}) neither add nor subtract from your score.`;
+
+  // Review
+  document.getElementById('review-summary').textContent = `Review Answers (${totalAnswered} trials)`;
+  document.getElementById('review-list').innerHTML = state.answers.map((a, i) =>
+    `<div class="review-item ${a.isCorrect ? 'correct' : 'incorrect'}">
+      <span class="review-icon" style="background:${a.isCorrect ? '#0d7c4a' : '#c8102e'}">${a.isCorrect ? '✓' : '✗'}</span>
+      <span style="color:#555">Trial ${i+1}: You said <strong>${a.given}</strong> — Answer was <strong>${a.correct}</strong></span>
+    </div>`
+  ).join('');
+
+  showScreen('results');
+}
+
+// ═══════════════════════════════════════════
+// KEYBOARD SHORTCUTS
+// ═══════════════════════════════════════════
+document.addEventListener('keydown', e => {
+  const gameScreen = document.getElementById('screen-game');
+  if (!gameScreen.classList.contains('active')) return;
+  if (document.getElementById('btn-same').disabled) return;
+  if (e.key === 's' || e.key === 'S') handleAnswer('same');
+  if (e.key === 'd' || e.key === 'D') handleAnswer('different');
+});
+
+// ═══════════════════════════════════════════
+// INIT — render static example cubes
+// ═══════════════════════════════════════════
+document.getElementById('home-cube1').innerHTML = makeCubeSVG("N","A","D", 140);
+document.getElementById('home-cube2').innerHTML = makeCubeSVG("×","A","B", 140);
+document.getElementById('instr-same-cubes').innerHTML = makeCubeSVG("×","A","B", 130) + makeCubeSVG("○","A","C", 130);
+document.getElementById('instr-diff-cubes').innerHTML = makeCubeSVG("N","D","A", 130) + makeCubeSVG("×","A","B", 130);
+</script>
+</body>
+</html>

@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Surgical Spatial Awareness Test</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap');
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#e0e0e0; font-family:'Source Sans 3',Arial,sans-serif; overflow:hidden; width:100vw; height:100vh; }
+
+  /* ─── HOME ─── */
+  #home { position:absolute; inset:0; z-index:100; display:flex; align-items:center; justify-content:center; }
+  .home-bg { position:absolute; inset:0; background:linear-gradient(145deg,#eee 0%,#d5d5d5 100%); }
+  .cube-deco { position:absolute; opacity:.38; }
+  .cube-deco.tr { top:-30px; right:-30px; width:420px; height:520px;
+    background: repeating-conic-gradient(from 0deg at 50% 50%, #e2e2e2 0deg 60deg, #ccc 60deg 120deg, #d8d8d8 120deg 180deg, #e2e2e2 180deg 240deg, #ccc 240deg 300deg, #d8d8d8 300deg 360deg);
+    background-size:72px 72px;
+    transform:perspective(500px) rotateY(-18deg) rotateX(8deg);
+  }
+  .cube-deco.bl { bottom:-30px; left:-30px; width:380px; height:460px;
+    background: repeating-conic-gradient(from 25deg at 50% 50%, #e6e6e6 0deg 60deg, #d0d0d0 60deg 120deg, #ddd 120deg 180deg, #e6e6e6 180deg 240deg, #d0d0d0 240deg 300deg, #ddd 300deg 360deg);
+    background-size:66px 66px;
+    transform:perspective(500px) rotateY(14deg) rotateX(-6deg);
+  }
+  .home-content { position:relative; z-index:2; text-align:center; }
+  .home-title { font-family:'Oswald',sans-serif; font-size:44px; font-weight:700; color:#cc0000; margin-bottom:6px; text-shadow:0 1px 1px rgba(0,0,0,.08); line-height:1.15; }
+  .home-subtitle { font-size:15px; color:#555; margin-bottom:18px; font-weight:600; letter-spacing:.5px; }
+  .home-form { display:flex; flex-direction:column; align-items:flex-start; min-width:380px; max-width:540px; gap:3px; }
+  .home-instructions { text-align:left; background:#fff; border:1.5px solid #bbb; padding:18px 22px; margin-bottom:14px; line-height:1.55; font-size:14px; color:#333; }
+  .home-instructions p { margin-bottom:8px; }
+  .home-instructions p:last-child { margin-bottom:0; }
+  .home-instructions strong { color:#222; }
+  .home-btns { display:flex; gap:10px; flex-wrap:wrap; width:100%; }
+  .home-btns .btn-exit { flex:1; }
+  .btn { padding:10px 36px; font-size:22px; font-family:inherit; font-weight:600; border:1.5px solid #999; background:#f0f0f0; cursor:pointer; transition:background .12s; }
+  .btn:hover { background:#e0e0e0; }
+  .btn-practice { margin-bottom:0; }
+  .btn-start { }
+  .btn-exit { width:100%; margin-top:4px; font-size:24px; padding:12px; }
+
+  /* ─── HUD ─── */
+  #hud { position:absolute; top:0; left:0; right:0; background:#cc0000; padding:7px 22px 9px; z-index:50; display:none; }
+  .hud-r1 { font-size:20px; font-weight:700; color:#fff; display:flex; gap:28px; flex-wrap:wrap; }
+  .hud-r2 { font-size:13.5px; color:#fff; opacity:.93; line-height:1.35; margin-top:2px; }
+
+  /* ─── Canvas ─── */
+  #c { position:absolute; inset:0; display:none; }
+
+  /* ─── Mobile ─── */
+  #mob { position:absolute; bottom:18px; left:50%; transform:translateX(-50%); display:none; gap:8px; z-index:60; }
+  .mb { width:60px; height:60px; border-radius:50%; border:2px solid rgba(255,255,255,.55); background:rgba(0,0,0,.28); color:#fff; font-size:22px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; user-select:none; backdrop-filter:blur(3px); }
+  .mb:active { background:rgba(255,255,255,.25); }
+  .mb.sm { width:48px; height:48px; font-size:16px; }
+  .mb.go { background:rgba(0,160,0,.35); border-color:rgba(0,220,0,.45); font-size:13px; width:66px; height:66px; }
+
+  /* ─── Results ─── */
+  #res { position:absolute; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.65); z-index:200; }
+  .res-card { background:#fff; border-radius:5px; padding:36px 44px; text-align:center; max-width:520px; width:90%; max-height:85vh; overflow-y:auto; box-shadow:0 8px 36px rgba(0,0,0,.3); }
+  .res-card h2 { font-family:'Oswald',sans-serif; color:#cc0000; font-size:30px; margin-bottom:18px; }
+  .res-tbl { width:100%; border-collapse:collapse; margin-bottom:20px; text-align:left; }
+  .res-tbl th { background:#cc0000; color:#fff; padding:7px 12px; font-size:13px; }
+  .res-tbl td { padding:6px 12px; border-bottom:1px solid #ddd; font-size:13px; }
+  .res-tbl tr:nth-child(even) td { background:#f8f8f8; }
+  .res-tot { font-size:18px; font-weight:700; color:#333; margin-bottom:18px; line-height:1.6; }
+</style>
+</head>
+<body>
+
+<!-- ═══ HOME ═══ -->
+<div id="home">
+  <div class="home-bg">
+    <div class="cube-deco tr"></div>
+    <div class="cube-deco bl"></div>
+  </div>
+  <div class="home-content">
+    <div class="home-title">Surgical Spatial<br>Awareness Test</div>
+    <div class="home-subtitle">icstaptitude.com</div>
+    <div class="home-form">
+      <div class="home-instructions">
+        <p><strong>How this test works:</strong></p>
+        <p>In each trial you will see a 3D geometric object (such as a cube, pyramid, sphere or flat surface) with a smaller floating object attached to one of its faces.</p>
+        <p>The floating object has been tilted away from the correct position. Your task is to <strong>adjust the floating object so that it sits perpendicular (at a right angle) to the surface</strong> it is resting on.</p>
+        <p><strong>Controls:</strong></p>
+        <p>
+          <strong>Up &amp; Down Arrow</strong> — tilt the floating object (coarse adjustment)<br>
+          <strong>'R' &amp; 'F' keys</strong> — tilt the floating object (fine adjustment)<br>
+          <strong>'Enter'</strong> — confirm your answer and move to the next trial<br>
+          <strong>'ESC'</strong> — end the test early
+        </p>
+        <p>The <strong>Practice</strong> mode gives you 25 trials with live feedback showing the current angle and your accumulated error. The full <strong>Test</strong> has 35 trials with no angle feedback — you must judge perpendicularity by eye alone.</p>
+        <p>We recommend completing a practice round first to familiarise yourself with the controls before attempting the full test.</p>
+      </div>
+      <div class="home-btns">
+        <button class="btn btn-practice" onclick="go(true)">Practice</button>
+        <button class="btn btn-start" onclick="go(false)">Start Test</button>
+        <button class="btn btn-exit" onclick="alert('Thank you for using this test.')">Exit</button>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>
+
+<!-- ═══ HUD ═══ -->
+<div id="hud">
+  <div class="hud-r1">
+    <span id="hN">Test: 1 of 35</span>
+    <span id="hA" style="display:none">Angle of Floating Object: 0.00</span>
+    <span id="hE" style="display:none">Accumulated Error: 0.00</span>
+  </div>
+  <div class="hud-r2">Use UP and DOWN arrows to get the floating object as close to perpendicular as possible.<br>Try to get floating object perpendicular to the base. Use 'R' and 'F' for smaller adjustments.</div>
+</div>
+
+<canvas id="c"></canvas>
+
+<!-- ═══ MOBILE ═══ -->
+<div id="mob">
+  <div class="mb sm" onmousedown="ms('f')" ontouchstart="ms('f')" onmouseup="me()" ontouchend="me()">F</div>
+  <div class="mb" onmousedown="ms('d')" ontouchstart="ms('d')" onmouseup="me()" ontouchend="me()">▼</div>
+  <div class="mb go" onclick="confirm()">NEXT</div>
+  <div class="mb" onmousedown="ms('u')" ontouchstart="ms('u')" onmouseup="me()" ontouchend="me()">▲</div>
+  <div class="mb sm" onmousedown="ms('r')" ontouchstart="ms('r')" onmouseup="me()" ontouchend="me()">R</div>
+</div>
+
+<!-- ═══ RESULTS ═══ -->
+<div id="res">
+  <div class="res-card">
+    <h2>Test Complete</h2>
+    <table class="res-tbl"><thead><tr><th>Trial</th><th>Error (°)</th></tr></thead><tbody id="rBody"></tbody></table>
+    <div class="res-tot" id="rTot"></div>
+    <button class="btn" style="width:100%" onclick="back()">Return to Menu</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const E=id=>document.getElementById(id);
+
+let practice=false, total=35, cur=0, accErr=0, errors=[], angle=0, active=false;
+let scene,cam,ren,baseObj,floatObj,floatPivot,wall;
+let inited=false;
+
+// ── Procedural textures ──
+function makeTex(type){
+  const cv=document.createElement('canvas'); cv.width=cv.height=512;
+  const x=cv.getContext('2d');
+  if(type==='stone'){
+    x.fillStyle='#8a9a88'; x.fillRect(0,0,512,512);
+    for(let i=0;i<6000;i++){
+      x.fillStyle=`rgba(${110+Math.random()*70},${120+Math.random()*70},${110+Math.random()*60},${.25+Math.random()*.35})`;
+      x.beginPath(); x.arc(Math.random()*512,Math.random()*512,Math.random()*3,0,Math.PI*2); x.fill();
+    }
+    x.strokeStyle='rgba(55,65,55,.32)'; x.lineWidth=2.5;
+    const s=60;
+    for(let r=0;r<12;r++) for(let c=0;c<12;c++){
+      const cx=c*s+(r%2)*s/2, cy=r*s*.866;
+      x.beginPath();
+      for(let i=0;i<6;i++){ const a=Math.PI/6+i*Math.PI/3; const px=cx+Math.cos(a)*s*.46, py=cy+Math.sin(a)*s*.46; i?x.lineTo(px,py):x.moveTo(px,py); }
+      x.closePath(); x.stroke();
+    }
+    for(let i=0;i<25;i++){
+      const cx=Math.random()*512, cy=Math.random()*512, r=12+Math.random()*35;
+      const g=x.createRadialGradient(cx,cy,0,cx,cy,r);
+      g.addColorStop(0,'rgba(95,135,85,.28)'); g.addColorStop(1,'rgba(95,135,85,0)');
+      x.fillStyle=g; x.fillRect(cx-r,cy-r,r*2,r*2);
+    }
+  } else if(type==='dark'){
+    x.fillStyle='#484848'; x.fillRect(0,0,512,512);
+    x.strokeStyle='rgba(28,28,28,.55)'; x.lineWidth=2.8;
+    for(let i=0;i<18;i++){ x.beginPath(); x.moveTo(0,i*30); x.lineTo(512,i*30); x.stroke(); x.beginPath(); x.moveTo(i*30,0); x.lineTo(i*30,512); x.stroke(); }
+    x.strokeStyle='rgba(70,70,70,.28)'; x.lineWidth=1.8;
+    for(let i=-12;i<24;i++){ x.beginPath(); x.moveTo(i*45,0); x.lineTo(i*45+512,512); x.stroke(); x.beginPath(); x.moveTo(i*45+512,0); x.lineTo(i*45,512); x.stroke(); }
+    for(let i=0;i<50;i++){ x.fillStyle='rgba(170,170,170,.28)'; x.beginPath(); x.arc(Math.random()*512,Math.random()*512,2.2,0,Math.PI*2); x.fill(); }
+  } else if(type==='red'){
+    x.fillStyle='#8b2222'; x.fillRect(0,0,512,512);
+    for(let i=0;i<3500;i++){ x.fillStyle=`rgba(${90+Math.random()*80},${15+Math.random()*30},${15+Math.random()*30},.28)`; x.fillRect(Math.random()*512,Math.random()*512,Math.random()*5,Math.random()*5); }
+  } else {
+    x.fillStyle='#e5e5e5'; x.fillRect(0,0,512,512);
+    for(let i=0;i<2500;i++){ x.fillStyle=`rgba(${195+Math.random()*60},${195+Math.random()*60},${195+Math.random()*60},.35)`; x.fillRect(Math.random()*512,Math.random()*512,Math.random()*4,Math.random()*4); }
+  }
+  const t=new THREE.CanvasTexture(cv); t.wrapS=t.wrapT=THREE.RepeatWrapping; return t;
+}
+
+// ── Init Three.js ──
+function init(){
+  if(inited) return; inited=true;
+  const cv=E('c');
+  ren=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+  ren.setSize(innerWidth,innerHeight);
+  ren.setPixelRatio(Math.min(devicePixelRatio,2));
+  ren.shadowMap.enabled=true;
+  ren.shadowMap.type=THREE.PCFSoftShadowMap;
+
+  scene=new THREE.Scene();
+
+  // Sky gradient background
+  const bgC=document.createElement('canvas'); bgC.width=4; bgC.height=512;
+  const bgX=bgC.getContext('2d');
+  const gr=bgX.createLinearGradient(0,0,0,512);
+  gr.addColorStop(0,'#1a2a5c'); gr.addColorStop(.28,'#4878b2'); gr.addColorStop(.58,'#b5d0eb'); gr.addColorStop(1,'#e6ecf3');
+  bgX.fillStyle=gr; bgX.fillRect(0,0,4,512);
+  scene.background=new THREE.CanvasTexture(bgC);
+
+  cam=new THREE.PerspectiveCamera(48,innerWidth/innerHeight,.1,200);
+
+  // Lights
+  scene.add(new THREE.AmbientLight(0xffffff,.42));
+  const dl=new THREE.DirectionalLight(0xffffff,.68);
+  dl.position.set(5,10,7); dl.castShadow=true;
+  dl.shadow.mapSize.set(1024,1024);
+  dl.shadow.camera.near=.5; dl.shadow.camera.far=50;
+  dl.shadow.camera.left=-15; dl.shadow.camera.right=15;
+  dl.shadow.camera.top=15; dl.shadow.camera.bottom=-15;
+  scene.add(dl);
+  scene.add(new THREE.PointLight(0xffeedd,.25,30).translateX(-3).translateY(5));
+
+  // Backdrop wall — icstaptitude.com branded
+  const wC=document.createElement('canvas'); wC.width=1024; wC.height=820;
+  const wX=wC.getContext('2d');
+  wX.fillStyle='#f4f4ef'; wX.fillRect(0,0,1024,820);
+
+  // Simple geometric logo mark (abstract cross/plus shape)
+  wX.save(); wX.translate(210,200);
+  wX.fillStyle='#2266aa';
+  wX.beginPath(); wX.moveTo(-38,-58); wX.lineTo(38,-58); wX.lineTo(38,22); wX.lineTo(0,54); wX.lineTo(-38,22); wX.closePath(); wX.fill();
+  wX.strokeStyle='#1a5090'; wX.lineWidth=3; wX.stroke();
+  wX.fillStyle='#fff'; wX.fillRect(-5,-48,10,86); wX.fillRect(-28,-10,56,10);
+  wX.strokeStyle='#2266aa'; wX.lineWidth=2;
+  wX.beginPath(); wX.arc(0,-5,68,0,Math.PI*2); wX.stroke();
+  wX.restore();
+
+  // Site name
+  wX.fillStyle='#1a1a1a'; wX.font='bold 90px Oswald,Arial,sans-serif'; wX.fillText('icstaptitude',52,440);
+  wX.font='bold 90px Oswald,Arial,sans-serif'; wX.fillText('.com',52,530);
+
+  // Tagline
+  wX.font='italic 38px Georgia,serif'; wX.fillStyle='#3a3a3a';
+  wX.fillText('surgical spatial',72,600); wX.fillText('awareness testing',72,648);
+
+  const wT=new THREE.CanvasTexture(wC);
+  const wM=new THREE.MeshStandardMaterial({map:wT,roughness:.55,metalness:.04});
+  wall=new THREE.Mesh(new THREE.PlaneGeometry(22,17),wM);
+  wall.position.set(-7,2.5,-7); wall.rotation.y=Math.PI/4;
+  scene.add(wall);
+
+  // Floor
+  const fl=new THREE.Mesh(new THREE.PlaneGeometry(50,50),new THREE.MeshStandardMaterial({color:0xc8c8c8,roughness:.82}));
+  fl.rotation.x=-Math.PI/2; fl.position.y=-6; fl.receiveShadow=true;
+  scene.add(fl);
+
+  addEventListener('resize',()=>{
+    ren.setSize(innerWidth,innerHeight);
+    cam.aspect=innerWidth/innerHeight;
+    cam.updateProjectionMatrix();
+  });
+
+  if(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||innerWidth<768) E('mob').style.display='flex';
+
+  (function loop(){ requestAnimationFrame(loop); ren.render(scene,cam); })();
+}
+
+// ── Shapes ──
+const BASES=['cube','cube','pyramid','sphere','prism','cylinder','flatPlane'];
+const FLOATS=['cone','cone','torus','sphere','cylinder'];
+
+function clearObj(o){ if(!o)return; scene.remove(o); o.traverse(c=>{ if(c.geometry)c.geometry.dispose(); if(c.material){if(c.material.map)c.material.map.dispose();c.material.dispose();} }); }
+
+function makeBase(type){
+  const ttype=Math.random()>.45?'stone':'dark';
+  const m=new THREE.MeshStandardMaterial({map:makeTex(ttype),roughness:.62,metalness:.08});
+  let g;
+  switch(type){
+    case'cube': g=new THREE.BoxGeometry(3.6,3.6,3.6); break;
+    case'pyramid': g=new THREE.ConeGeometry(2.9,4.2,4); break;
+    case'sphere': g=new THREE.SphereGeometry(2.6,32,32); break;
+    case'prism': g=new THREE.ConeGeometry(2.6,4.2,3); break;
+    case'cylinder': g=new THREE.CylinderGeometry(2.1,2.1,3.8,32); break;
+    case'flatPlane': g=new THREE.BoxGeometry(6.5,.4,6.5); break;
+    default: g=new THREE.BoxGeometry(3.6,3.6,3.6);
+  }
+  const mesh=new THREE.Mesh(g,m); mesh.castShadow=true; mesh.receiveShadow=true;
+  return mesh;
+}
+
+function makeFloat(type){
+  let g;
+  const ttype=type==='torus'?'light':(Math.random()>.5?'dark':'red');
+  const m=new THREE.MeshStandardMaterial({map:makeTex(ttype),roughness:.38,metalness:.14});
+  switch(type){
+    case'cone': g=new THREE.ConeGeometry(.55,2.4,16); break;
+    case'torus': g=new THREE.TorusGeometry(.72,.22,16,32); m.color=new THREE.Color(0xdcdcdc); m.map=null; m.roughness=.28; m.metalness=.18; break;
+    case'sphere': g=new THREE.SphereGeometry(.6,24,24); break;
+    case'cylinder': g=new THREE.CylinderGeometry(.14,.52,1.9,16); break;
+    default: g=new THREE.ConeGeometry(.55,2.4,16);
+  }
+  const mesh=new THREE.Mesh(g,m); mesh.castShadow=true;
+  if(type==='cone'){
+    const tg=new THREE.CylinderGeometry(.018,.018,.45,8);
+    const tm=new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xbbbbbb,emissiveIntensity:.25});
+    const tip=new THREE.Mesh(tg,tm); tip.position.y=1.42; mesh.add(tip);
+  }
+  return mesh;
+}
+
+function getSurface(type){
+  const faces={
+    cube:[
+      {n:new THREE.Vector3(0,1,0),d:1.8},
+      {n:new THREE.Vector3(0,-1,0),d:1.8},
+      {n:new THREE.Vector3(1,0,0),d:1.8},
+      {n:new THREE.Vector3(-1,0,0),d:1.8},
+      {n:new THREE.Vector3(0,0,1),d:1.8},
+      {n:new THREE.Vector3(0,0,-1),d:1.8}
+    ],
+    pyramid:[
+      {n:new THREE.Vector3(0,1,0),d:2.1},
+      {n:new THREE.Vector3(.7,.5,0).normalize(),d:2.2},
+      {n:new THREE.Vector3(-.7,.5,0).normalize(),d:2.2},
+      {n:new THREE.Vector3(0,.5,.7).normalize(),d:2.2},
+      {n:new THREE.Vector3(0,.5,-.7).normalize(),d:2.2}
+    ],
+    sphere:[],
+    prism:[
+      {n:new THREE.Vector3(.6,.5,0).normalize(),d:2.1},
+      {n:new THREE.Vector3(-.6,.5,0).normalize(),d:2.1},
+      {n:new THREE.Vector3(0,.5,.6).normalize(),d:2.1}
+    ],
+    cylinder:[
+      {n:new THREE.Vector3(0,1,0),d:1.9},
+      {n:new THREE.Vector3(1,0,0),d:2.1},
+      {n:new THREE.Vector3(-1,0,0),d:2.1},
+      {n:new THREE.Vector3(0,0,1),d:2.1}
+    ],
+    flatPlane:[
+      {n:new THREE.Vector3(0,1,0),d:.2}
+    ]
+  };
+  if(type==='sphere'){
+    const th=Math.random()*Math.PI*.55+Math.PI*.22;
+    const ph=Math.random()*Math.PI*2;
+    const n=new THREE.Vector3(Math.sin(th)*Math.cos(ph),Math.cos(th),Math.sin(th)*Math.sin(ph)).normalize();
+    return {position:n.clone().multiplyScalar(2.6),normal:n};
+  }
+  const arr=faces[type]||faces.cube;
+  const f=arr[Math.floor(Math.random()*arr.length)];
+  return {position:f.n.clone().multiplyScalar(f.d),normal:f.n.clone()};
+}
+
+// ── Setup trial ──
+function setup(){
+  clearObj(baseObj); clearObj(floatPivot);
+
+  const bType=BASES[Math.floor(Math.random()*BASES.length)];
+  baseObj=makeBase(bType);
+  baseObj.rotation.set((Math.random()-.5)*.85, Math.random()*Math.PI*2, (Math.random()-.5)*.45);
+  scene.add(baseObj);
+
+  const surf=getSurface(bType);
+  const fType=FLOATS[Math.floor(Math.random()*FLOATS.length)];
+  floatObj=makeFloat(fType);
+
+  floatPivot=new THREE.Group();
+  floatPivot.position.copy(surf.position);
+
+  const q=new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0),surf.normal);
+  floatPivot.quaternion.copy(q);
+
+  floatPivot.position.applyEuler(baseObj.rotation);
+  const bq=new THREE.Quaternion().setFromEuler(baseObj.rotation);
+  floatPivot.quaternion.premultiply(bq);
+
+  if(fType==='torus'){ floatObj.position.y=.2; floatObj.rotation.x=Math.PI/2; }
+  else { floatObj.position.y=fType==='sphere'?.65:1.1; }
+
+  floatPivot.add(floatObj);
+  scene.add(floatPivot);
+
+  angle=(Math.random()*45+10)*(Math.random()>.5?1:-1);
+  angle=Math.round(angle*100)/100;
+  tilt();
+
+  // ── Camera: always frame both objects ──
+  // Get world position of the floating object
+  const floatWorldPos=new THREE.Vector3();
+  floatPivot.getWorldPosition(floatWorldPos);
+  // Also account for the floating obj offset above the pivot
+  const floatTipPos=new THREE.Vector3();
+  floatObj.getWorldPosition(floatTipPos);
+
+  // Center point the camera should look at (between base center and floating object)
+  const lookTarget=new THREE.Vector3().addVectors(floatWorldPos,new THREE.Vector3(0,0,0)).multiplyScalar(0.5);
+
+  // Compute a direction vector from the look target outward to place the camera
+  // Use the floating object position to pick a camera side that shows both objects well
+  const outDir=new THREE.Vector3().subVectors(floatWorldPos,new THREE.Vector3(0,0,0)).normalize();
+  // Offset the camera to the side and slightly above so we get a 3/4 view
+  const sideAngle=Math.random()*Math.PI*0.6-Math.PI*0.3; // ±54° variation
+  const sideDir=new THREE.Vector3(
+    outDir.x*Math.cos(sideAngle)-outDir.z*Math.sin(sideAngle),
+    0,
+    outDir.x*Math.sin(sideAngle)+outDir.z*Math.cos(sideAngle)
+  ).normalize();
+
+  // If sideDir is near zero (floating obj directly above/below), pick a random horizontal direction
+  if(sideDir.length()<0.1){
+    const ra=Math.random()*Math.PI*2;
+    sideDir.set(Math.cos(ra),0,Math.sin(ra));
+  }
+
+  const dist=8+Math.random()*3;
+  const elevationAngle=0.25+Math.random()*0.35; // 14°-34° above horizon
+  cam.position.set(
+    lookTarget.x+sideDir.x*Math.cos(elevationAngle)*dist,
+    lookTarget.y+Math.sin(elevationAngle)*dist+1,
+    lookTarget.z+sideDir.z*Math.cos(elevationAngle)*dist
+  );
+  cam.lookAt(lookTarget);
+
+  // Verify both objects are in the camera frustum; if not, pull camera back
+  cam.updateMatrixWorld();
+  cam.updateProjectionMatrix();
+  const frustum=new THREE.Frustum();
+  frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(cam.projectionMatrix,cam.matrixWorldInverse));
+  const baseSphere=new THREE.Sphere(new THREE.Vector3(0,0,0),3.5);
+  const floatSphere=new THREE.Sphere(floatWorldPos,1.5);
+  let attempts=0;
+  while((!frustum.intersectsSphere(baseSphere)||!frustum.intersectsSphere(floatSphere))&&attempts<10){
+    // Pull camera further back and re-check
+    const pullDir=new THREE.Vector3().subVectors(cam.position,lookTarget).normalize();
+    cam.position.addScaledVector(pullDir,2);
+    cam.lookAt(lookTarget);
+    cam.updateMatrixWorld();
+    frustum.setFromProjectionMatrix(new THREE.Matrix4().multiplyMatrices(cam.projectionMatrix,cam.matrixWorldInverse));
+    attempts++;
+  }
+
+  hud();
+}
+
+function tilt(){
+  if(!floatObj)return;
+  const r=THREE.MathUtils.degToRad(angle);
+  const isTorus=floatObj.geometry.type==='TorusGeometry';
+  floatObj.rotation.x=isTorus?Math.PI/2+r:r;
+}
+
+function hud(){
+  E('hN').textContent=`Test: ${cur+1} of ${total}`;
+  if(practice){
+    E('hA').style.display='';
+    E('hE').style.display='';
+    E('hA').textContent=`Angle of Floating Object: ${Math.abs(angle).toFixed(2)}`;
+    E('hE').textContent=`Accumulated Error: ${accErr.toFixed(2)}`;
+  } else {
+    E('hA').style.display='none';
+    E('hE').style.display='none';
+  }
+}
+
+// ── Controls ──
+const COARSE=2, FINE=0.1;
+let held={};
+
+function confirm(){
+  if(!active)return;
+  const err=Math.abs(angle);
+  errors.push(err);
+  accErr+=err;
+  accErr=Math.round(accErr*100)/100;
+  cur++;
+  if(cur>=total) results();
+  else setup();
+}
+
+document.addEventListener('keydown',e=>{
+  if(!active)return;
+  held[e.key]=true;
+  if(e.key==='ArrowUp'){angle-=COARSE;e.preventDefault();}
+  else if(e.key==='ArrowDown'){angle+=COARSE;e.preventDefault();}
+  else if(e.key==='r'||e.key==='R')angle-=FINE;
+  else if(e.key==='f'||e.key==='F')angle+=FINE;
+  else if(e.key==='Enter'){confirm();e.preventDefault();}
+  else if(e.key==='Escape'){active&&errors.length?results():back();}
+  angle=Math.round(angle*100)/100;
+  tilt(); hud();
+});
+
+document.addEventListener('keyup',e=>{delete held[e.key];});
+
+setInterval(()=>{
+  if(!active)return;
+  let changed=false;
+  if(held['ArrowUp']){angle-=COARSE*.4;changed=true;}
+  if(held['ArrowDown']){angle+=COARSE*.4;changed=true;}
+  if(held['r']||held['R']){angle-=FINE;changed=true;}
+  if(held['f']||held['F']){angle+=FINE;changed=true;}
+  if(changed){angle=Math.round(angle*100)/100;tilt();hud();}
+},60);
+
+// Mobile
+let mi=null;
+function ms(dir){
+  const act=()=>{
+    if(dir==='u')angle-=COARSE;
+    else if(dir==='d')angle+=COARSE;
+    else if(dir==='r')angle-=FINE;
+    else if(dir==='f')angle+=FINE;
+    angle=Math.round(angle*100)/100; tilt(); hud();
+  };
+  act(); mi=setInterval(act,75);
+}
+function me(){ if(mi){clearInterval(mi);mi=null;} }
+
+// ── Go ──
+function go(prac){
+  practice=prac; total=prac?25:35; cur=0; accErr=0; errors=[]; active=true;
+  E('home').style.display='none';
+  E('c').style.display='block';
+  E('hud').style.display='block';
+  E('res').style.display='none';
+  init();
+  ren.setSize(innerWidth,innerHeight);
+  cam.aspect=innerWidth/innerHeight; cam.updateProjectionMatrix();
+  setup();
+}
+
+function results(){
+  active=false;
+  E('hud').style.display='none';
+  E('res').style.display='flex';
+  if(E('mob').style.display==='flex') E('mob').style.display='none';
+  const tb=E('rBody'); tb.innerHTML='';
+  errors.forEach((e,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${i+1}</td><td>${e.toFixed(2)}°</td>`; tb.appendChild(tr);
+  });
+  const avg=accErr/total;
+  E('rTot').innerHTML=`Total Accumulated Error: <strong>${accErr.toFixed(2)}°</strong><br>Average Error: <strong>${avg.toFixed(2)}°</strong><br><span style="color:${avg<3?'#2a7a2a':avg<8?'#cc8800':'#cc0000'};font-size:15px">${avg<3?'Excellent spatial perception':avg<8?'Good spatial awareness':'Further practice recommended'}</span>`;
+}
+
+function back(){
+  active=false;
+  E('home').style.display='flex';
+  E('c').style.display='none';
+  E('hud').style.display='none';
+  E('res').style.display='none';
+}
+</script>
+</body>
+</html>

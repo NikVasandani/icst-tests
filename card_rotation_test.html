@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Card Rotations Test | icstaptitude.com</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --brand: #0f6faa;
+    --brand-dark: #094d78;
+    --brand-light: #e8f4fb;
+    --bg: #f4f6f8;
+    --card: #ffffff;
+    --text: #1a1e2e;
+    --text-muted: #6b7280;
+    --border: #dde1e7;
+    --green: #1a7f42;
+    --green-bg: #d4edda;
+    --red: #c0392b;
+    --red-bg: #f8d7da;
+    --mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+    --sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.55; }
+  }
+
+  /* ─── SCREENS ─── */
+  .screen { display: none; animation: fadeIn 0.35s ease; }
+  .screen.active { display: block; }
+
+  /* ─── HEADER BAR ─── */
+  .header-bar {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 0; border-bottom: 3px solid var(--brand);
+    margin-bottom: 28px;
+  }
+  .header-bar.small { border-width: 2px; margin-bottom: 20px; }
+  .brand-name {
+    font-weight: 700; font-size: 1.25rem; color: var(--brand);
+    letter-spacing: -0.3px; line-height: 1;
+  }
+  .brand-name span { font-weight: 400; color: var(--brand-dark); font-size: 0.82rem; }
+  .header-mode {
+    margin-left: auto; font-size: 0.84rem; font-weight: 600; color: var(--text-muted);
+  }
+
+  /* ─── HOME ─── */
+  .home-wrap { max-width: 760px; margin: 0 auto; padding: 0 20px 48px; }
+  .hero { text-align: center; margin-bottom: 36px; }
+  .hero h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; }
+  .hero .subtitle { font-size: 1rem; color: var(--brand); font-weight: 600; margin-top: 4px; }
+  .hero .divider { width: 56px; height: 3px; background: var(--brand); margin: 16px auto; border-radius: 2px; }
+  .hero p.desc { font-size: 0.92rem; color: var(--text-muted); max-width: 560px; margin: 0 auto; line-height: 1.65; }
+
+  .mode-cards { display: flex; gap: 20px; margin-bottom: 28px; flex-wrap: wrap; justify-content: center; }
+  .mode-card {
+    flex: 1 1 270px; max-width: 340px; background: var(--card); border: 2px solid var(--border);
+    border-radius: 12px; padding: 28px 24px; cursor: pointer; text-align: center;
+    transition: border-color 0.2s, transform 0.2s; font-family: inherit; color: var(--text);
+  }
+  .mode-card:hover { border-color: var(--brand); transform: translateY(-2px); }
+  .mode-card .icon { font-size: 2rem; margin-bottom: 8px; }
+  .mode-card h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 4px; }
+  .mode-card .meta { font-size: 0.9rem; color: var(--brand); font-weight: 600; margin-bottom: 8px; }
+  .mode-card .note { font-size: 0.8rem; color: var(--text-muted); }
+
+  .info-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px 20px; font-size: 0.85rem; color: var(--text-muted); line-height: 1.55;
+  }
+
+  /* ─── INSTRUCTIONS ─── */
+  .instr-wrap { max-width: 640px; margin: 0 auto; padding: 0 20px 40px; }
+  .instr-wrap h2 { font-size: 1.35rem; font-weight: 700; margin-bottom: 18px; }
+  .instr-content {
+    background: var(--card); border-radius: 12px; padding: 24px; margin-bottom: 24px;
+    line-height: 1.72; font-size: 0.92rem; color: #444;
+  }
+  .instr-content p { margin-bottom: 12px; }
+  .demo-box { margin: 20px 0; padding: 16px; background: #f7f8fa; border-radius: 8px; }
+  .demo-label { font-weight: 600; font-size: 0.85rem; color: var(--text); margin-bottom: 8px; }
+  .demo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .demo-row .arrow { font-size: 1.5rem; color: #aaa; }
+  .demo-row .tag-s {
+    font-weight: 700; font-size: 1.05rem; color: var(--green); background: var(--green-bg);
+    padding: 4px 12px; border-radius: 6px;
+  }
+  .demo-row .tag-d {
+    font-weight: 700; font-size: 1.05rem; color: var(--red); background: var(--red-bg);
+    padding: 4px 12px; border-radius: 6px;
+  }
+  .warn-box {
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;
+    padding: 12px 16px; margin-top: 16px; font-size: 0.88rem; color: #92400e;
+  }
+  .btn-primary {
+    display: block; width: 100%; padding: 14px 28px; background: var(--brand); color: #fff;
+    border: none; border-radius: 10px; font-size: 1.05rem; font-weight: 700;
+    cursor: pointer; font-family: var(--sans); letter-spacing: 0.4px; transition: background 0.15s;
+  }
+  .btn-primary:hover { background: var(--brand-dark); }
+
+  /* ─── TEST ─── */
+  .test-wrap { max-width: 1100px; margin: 0 auto; padding: 0 12px 110px; }
+  .test-header {
+    display: flex; align-items: center; gap: 14px; padding: 12px 0;
+    border-bottom: 2px solid var(--brand); margin-bottom: 12px; flex-wrap: wrap;
+  }
+  .timer {
+    font-family: var(--mono); font-size: 1.5rem; font-weight: 700; color: var(--text);
+    background: #f0f1f5; padding: 8px 20px; border-radius: 8px;
+    border: 2px solid var(--border); letter-spacing: 2px; transition: all 0.25s;
+  }
+  .timer.low { color: var(--red); background: var(--red-bg); border-color: var(--red); animation: pulse 1s infinite; }
+
+  .progress-section { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .progress-bar { flex: 1; background: #e5e7eb; border-radius: 6px; height: 8px; overflow: hidden; }
+  .progress-fill {
+    height: 100%; background: linear-gradient(90deg, var(--brand), var(--brand-dark));
+    border-radius: 6px; transition: width 0.3s ease;
+  }
+  .progress-text { font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; font-weight: 500; }
+
+  .trials-list { display: flex; flex-direction: column; gap: 10px; }
+  .trial-row {
+    display: flex; align-items: center; gap: 8px; background: var(--card);
+    border-radius: 10px; padding: 10px 12px; border: 1px solid var(--border);
+  }
+  .trial-num { font-weight: 700; font-size: 0.8rem; color: #aaa; width: 26px; text-align: center; flex-shrink: 0; }
+  .ref-card {
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    width: 85px; height: 85px; background: #f7f8fa; border-radius: 8px; border: 2px solid var(--text);
+  }
+  .divider-line { width: 2px; height: 68px; background: var(--brand); border-radius: 1px; flex-shrink: 0; margin: 0 4px; }
+  .comparisons { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+  .comp-card { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .comp-shape {
+    width: 76px; height: 76px; display: flex; align-items: center; justify-content: center;
+    border-radius: 6px; background: #fff; border: 2px solid var(--border); transition: border-color 0.15s;
+  }
+  .comp-shape.answered { border-color: var(--text); }
+  .comp-shape.correct { border-color: var(--green); background: var(--green-bg); }
+  .comp-shape.wrong { border-color: var(--red); background: var(--red-bg); }
+
+  .answer-btns { display: flex; gap: 3px; }
+  .answer-btns button {
+    width: 32px; height: 24px; border: none; border-radius: 4px; font-weight: 700;
+    font-size: 0.72rem; cursor: pointer; font-family: var(--mono); transition: all 0.1s;
+    background: #e9ecef; color: #333;
+  }
+  .answer-btns button.active-s { background: var(--green); color: #fff; }
+  .answer-btns button.active-d { background: var(--red); color: #fff; }
+
+  .review-tag { display: flex; align-items: center; gap: 3px; height: 20px; font-size: 0.78rem; font-weight: 700; }
+  .review-tag .correct-ans { color: var(--green); }
+  .review-tag .wrong-ans { color: var(--red); text-decoration: line-through; font-size: 0.7rem; }
+  .review-tag .skipped { color: #aaa; font-size: 0.65rem; }
+
+  /* ─── NAV BAR ─── */
+  .nav-bar {
+    position: fixed; bottom: 0; left: 0; right: 0; display: flex; align-items: center;
+    justify-content: space-between; padding: 12px 24px; background: var(--card);
+    border-top: 2px solid var(--border); z-index: 100;
+  }
+  .nav-btn {
+    padding: 10px 24px; background: #f0f1f5; border: 1px solid #ccc; border-radius: 8px;
+    font-weight: 600; font-size: 0.9rem; cursor: pointer; font-family: var(--sans); color: var(--text);
+    transition: background 0.15s;
+  }
+  .nav-btn:hover { background: #e2e4e9; }
+  .nav-btn:disabled { opacity: 0.4; cursor: default; }
+  .nav-info { font-size: 0.82rem; color: var(--text-muted); font-weight: 500; }
+  .btn-finish {
+    padding: 10px 28px; background: var(--brand); color: #fff; border: none; border-radius: 8px;
+    font-weight: 700; font-size: 0.9rem; cursor: pointer; font-family: var(--sans); transition: background 0.15s;
+  }
+  .btn-finish:hover { background: var(--brand-dark); }
+
+  /* ─── RESULTS ─── */
+  .results-wrap { max-width: 600px; margin: 0 auto; padding: 0 20px 40px; }
+  .results-wrap h2 { font-size: 1.5rem; font-weight: 700; text-align: center; margin-bottom: 24px; }
+  .score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .score-card {
+    background: var(--card); border-radius: 10px; padding: 20px 16px; text-align: center;
+    border: 1px solid var(--border);
+  }
+  .score-card .num { font-size: 2.2rem; font-weight: 700; font-family: var(--mono); color: var(--text); }
+  .score-card .num.green { color: var(--green); }
+  .score-card .num.red { color: var(--red); }
+  .score-card .num.gray { color: var(--text-muted); }
+  .score-card .label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-top: 4px; }
+  .score-card .sublabel { font-size: 0.72rem; color: #aaa; margin-top: 2px; }
+  .score-summary { text-align: center; font-size: 0.88rem; color: var(--text-muted); margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; margin-top: 12px; }
+  .btn-secondary {
+    padding: 10px 28px; background: #fff; border: 2px solid var(--brand); color: var(--brand);
+    border-radius: 8px; font-weight: 700; font-size: 0.9rem; cursor: pointer; font-family: var(--sans);
+    transition: all 0.15s;
+  }
+  .btn-secondary:hover { background: var(--brand-light); }
+</style>
+</head>
+<body>
+
+<!-- ════════════════ HOME ════════════════ -->
+<div id="screen-home" class="screen active">
+  <div class="home-wrap">
+    <div class="header-bar">
+      <div class="brand-name">icstaptitude.com</div>
+    </div>
+    <div class="hero">
+      <h1>Card Rotations Test</h1>
+      <p class="subtitle">Surgical Aptitude Test Preparation</p>
+      <div class="divider"></div>
+      <p class="desc">
+        Prepare for the Core Surgical Training (CST) application with this interactive
+        card rotation test. Assess your visual-spatial ability by determining whether shapes
+        are rotated versions of a reference card, or mirror-flipped.
+      </p>
+    </div>
+    <div class="mode-cards">
+      <button class="mode-card" onclick="startMode('practice')">
+        <div class="icon">&#9998;</div>
+        <h2>Practice</h2>
+        <p class="meta">30 trials &middot; 3 minutes</p>
+        <p class="note">Review answers after completion</p>
+      </button>
+      <button class="mode-card" onclick="startMode('test')">
+        <div class="icon">&#9201;</div>
+        <h2>Timed Test</h2>
+        <p class="meta">60 trials &middot; 3 minutes</p>
+        <p class="note">Simulate real exam conditions</p>
+      </button>
+    </div>
+    <div class="info-box">
+      <strong>Scoring:</strong> Your score = correct answers &minus; incorrect answers.
+      Unanswered items do not count against you, so random guessing will not help.
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ INSTRUCTIONS ════════════════ -->
+<div id="screen-instructions" class="screen">
+  <div class="instr-wrap">
+    <div class="header-bar small">
+      <div class="brand-name">icstaptitude.com</div>
+      <span class="header-mode" id="instr-mode-label"></span>
+    </div>
+    <h2>Instructions</h2>
+    <div class="instr-content">
+      <p>This is a test of your ability to see differences in figures.</p>
+      <p>
+        Each problem consists of <strong>one reference card</strong> on the left and
+        <strong>eight comparison cards</strong> on the right. Decide whether each comparison
+        card is the <strong>same</strong> as or <strong>different</strong> from the reference card.
+      </p>
+      <div class="demo-box">
+        <div class="demo-label">Same = rotated only (can be slid into position):</div>
+        <div class="demo-row">
+          <svg width="70" height="70" viewBox="0 0 100 100"><polygon points="50,15 85,80 15,80" fill="#fff" stroke="#1a1e2e" stroke-width="2.5"/></svg>
+          <span class="arrow">&rarr;</span>
+          <svg width="70" height="70" viewBox="0 0 100 100"><polygon points="85,50 20,85 20,15" fill="#fff" stroke="#1a1e2e" stroke-width="2.5"/></svg>
+          <span class="tag-s">S</span>
+        </div>
+        <div class="demo-label">Different = flipped / mirrored:</div>
+        <div class="demo-row">
+          <svg width="70" height="70" viewBox="0 0 100 100"><polygon points="50,15 85,80 15,80" fill="#fff" stroke="#1a1e2e" stroke-width="2.5"/></svg>
+          <span class="arrow">&rarr;</span>
+          <svg width="70" height="70" viewBox="0 0 100 100"><polygon points="50,85 85,20 15,20" fill="#fff" stroke="#c0392b" stroke-width="2.5"/></svg>
+          <span class="tag-d">D</span>
+        </div>
+      </div>
+      <p>
+        Mark <strong>S</strong> if the card is the same (rotated only).
+        Mark <strong>D</strong> if the card is different (flipped/mirrored). Click again to deselect.
+      </p>
+      <div class="warn-box">
+        You have <strong>3 minutes</strong>. Work as quickly as you can without sacrificing accuracy.
+        Your score = correct &minus; incorrect, so guessing at random will not help.
+      </div>
+    </div>
+    <button class="btn-primary" onclick="beginTest()">Begin</button>
+  </div>
+</div>
+
+<!-- ════════════════ TEST ════════════════ -->
+<div id="screen-test" class="screen">
+  <div class="test-wrap">
+    <div class="test-header">
+      <div class="brand-name">icstaptitude.com</div>
+      <span class="header-mode" id="test-mode-label"></span>
+      <div class="timer" id="timer">03:00</div>
+    </div>
+    <div class="progress-section">
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+      <span class="progress-text" id="progress-text">0 / 0 answered</span>
+    </div>
+    <div class="trials-list" id="trials-container"></div>
+    <div class="nav-bar">
+      <button class="nav-btn" id="btn-prev" onclick="prevPage()">&larr; Previous</button>
+      <span class="nav-info" id="nav-info"></span>
+      <button class="nav-btn" id="btn-next" onclick="nextPage()">Next &rarr;</button>
+      <button class="btn-finish" id="btn-finish-nav" onclick="finishTest()" style="display:none;">Finish</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ RESULTS ════════════════ -->
+<div id="screen-results" class="screen">
+  <div class="results-wrap">
+    <div class="header-bar small">
+      <div class="brand-name">icstaptitude.com</div>
+      <span class="header-mode">Results</span>
+    </div>
+    <h2>Test Complete</h2>
+    <div class="score-grid">
+      <div class="score-card"><div class="num" id="res-net">0</div><div class="label">Net Score</div><div class="sublabel">(correct &minus; incorrect)</div></div>
+      <div class="score-card"><div class="num green" id="res-correct">0</div><div class="label">Correct</div></div>
+      <div class="score-card"><div class="num red" id="res-incorrect">0</div><div class="label">Incorrect</div></div>
+      <div class="score-card"><div class="num gray" id="res-unanswered">0</div><div class="label">Unanswered</div></div>
+    </div>
+    <div class="score-summary" id="res-summary"></div>
+    <button class="btn-primary" id="btn-review" onclick="showReview()" style="margin-bottom:16px;">Review Answers</button>
+    <div class="btn-row">
+      <button class="btn-secondary" onclick="retryTest()">Retry</button>
+      <button class="btn-secondary" onclick="goHome()">Home</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════ REVIEW ════════════════ -->
+<div id="screen-review" class="screen">
+  <div class="test-wrap">
+    <div class="test-header">
+      <div class="brand-name">icstaptitude.com</div>
+      <span class="header-mode">Review Answers</span>
+      <button class="btn-finish" onclick="showScreen('screen-results')">Back to Results</button>
+    </div>
+    <div class="trials-list" id="review-container"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════
+let currentMode = null;
+let trials = [];
+let answers = [];
+let timeLeft = 180;
+let timerInterval = null;
+let currentPage = 0;
+const TRIALS_PER_PAGE = 5;
+
+// ═══════════════════════════════════════════════════
+// SHAPE GENERATION
+// ═══════════════════════════════════════════════════
+function seededRandom(seed) {
+  let s = seed;
+  return () => { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; };
+}
+
+function generateShape(seed) {
+  const rng = seededRandom(seed);
+  const n = 4 + Math.floor(rng() * 3);
+  const pts = [];
+  const step = (2 * Math.PI) / n;
+  for (let i = 0; i < n; i++) {
+    const a = step * i + (rng() - 0.5) * step * 0.5;
+    const r = 28 + rng() * 16;
+    pts.push({ x: Math.cos(a) * r, y: Math.sin(a) * r });
+  }
+  const ni = Math.floor(rng() * n);
+  const nxt = (ni + 1) % n;
+  const mx = (pts[ni].x + pts[nxt].x) / 2;
+  const my = (pts[ni].y + pts[nxt].y) / 2;
+  const nx = -(pts[nxt].y - pts[ni].y) * 0.35;
+  const ny = (pts[nxt].x - pts[ni].x) * 0.35;
+  pts.splice(ni + 1, 0, { x: mx + nx, y: my + ny });
+  return pts;
+}
+
+function rotatePoints(pts, angle) {
+  const c = Math.cos(angle), s = Math.sin(angle);
+  return pts.map(p => ({ x: p.x * c - p.y * s, y: p.x * s + p.y * c }));
+}
+function flipPoints(pts) { return pts.map(p => ({ x: -p.x, y: p.y })); }
+function toPath(pts) { return pts.map((p, i) => `${i ? 'L' : 'M'}${p.x + 50},${p.y + 50}`).join(' ') + 'Z'; }
+
+function shapeSVG(pts, size, extraClass) {
+  const cls = extraClass || '';
+  return `<svg width="${size}" height="${size}" viewBox="0 0 100 100"><path d="${toPath(pts)}" fill="#fff" stroke="#1a1e2e" stroke-width="2.2" stroke-linejoin="round" class="${cls}"/></svg>`;
+}
+
+function generateTrials(count, baseSeed) {
+  const result = [];
+  for (let i = 0; i < count; i++) {
+    const seed = baseSeed + i * 137;
+    const shape = generateShape(seed);
+    const rng = seededRandom(seed + 9999);
+    const comps = [];
+    const pre = Array(8).fill(null);
+    const idx = [0,1,2,3,4,5,6,7];
+    for (let j = 7; j > 0; j--) { const k = Math.floor(rng() * (j + 1)); [idx[j], idx[k]] = [idx[k], idx[j]]; }
+    for (let j = 0; j < 3; j++) pre[idx[j]] = true;
+    for (let j = 3; j < 6; j++) pre[idx[j]] = false;
+    for (let j = 0; j < 8; j++) {
+      const isSame = pre[j] !== null ? pre[j] : rng() > 0.5;
+      const angle = (Math.floor(rng() * 7) + 1) * (Math.PI / 4);
+      let pts = isSame ? rotatePoints(shape, angle) : rotatePoints(flipPoints(shape), angle);
+      comps.push({ points: pts, isSame });
+    }
+    result.push({ shape, comparisons: comps });
+  }
+  return result;
+}
+
+// ═══════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function goHome() { stopTimer(); showScreen('screen-home'); }
+
+function startMode(mode) {
+  currentMode = mode;
+  const seed = mode === 'practice' ? 42 : 1337;
+  const count = mode === 'practice' ? 30 : 60;
+  trials = generateTrials(count, seed);
+  answers = trials.map(t => t.comparisons.map(() => null));
+  timeLeft = 180;
+  currentPage = 0;
+  document.getElementById('instr-mode-label').textContent = mode === 'practice' ? 'Practice Mode' : 'Timed Test';
+  showScreen('screen-instructions');
+}
+
+function beginTest() {
+  const label = currentMode === 'practice' ? 'Practice' : 'Test';
+  document.getElementById('test-mode-label').textContent = `${label} — Page 1/${Math.ceil(trials.length / TRIALS_PER_PAGE)}`;
+  startTimer();
+  renderPage();
+  showScreen('screen-test');
+}
+
+function retryTest() { startMode(currentMode); }
+
+// ═══════════════════════════════════════════════════
+// TIMER
+// ═══════════════════════════════════════════════════
+function startTimer() {
+  stopTimer();
+  updateTimerDisplay();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerDisplay();
+    if (timeLeft <= 0) finishTest();
+  }, 1000);
+}
+function stopTimer() { if (timerInterval) { clearInterval(timerInterval); timerInterval = null; } }
+function updateTimerDisplay() {
+  const el = document.getElementById('timer');
+  const m = String(Math.floor(timeLeft / 60)).padStart(2, '0');
+  const s = String(timeLeft % 60).padStart(2, '0');
+  el.textContent = `${m}:${s}`;
+  el.classList.toggle('low', timeLeft <= 30);
+}
+
+// ═══════════════════════════════════════════════════
+// RENDER TEST PAGE
+// ═══════════════════════════════════════════════════
+function renderPage() {
+  const totalPages = Math.ceil(trials.length / TRIALS_PER_PAGE);
+  const start = currentPage * TRIALS_PER_PAGE;
+  const end = Math.min(start + TRIALS_PER_PAGE, trials.length);
+  const visible = trials.slice(start, end);
+
+  document.getElementById('test-mode-label').textContent =
+    `${currentMode === 'practice' ? 'Practice' : 'Test'} — Page ${currentPage + 1}/${totalPages}`;
+
+  let html = '';
+  visible.forEach((trial, vi) => {
+    const ti = start + vi;
+    html += `<div class="trial-row"><div class="trial-num">${ti + 1}</div>`;
+    html += `<div class="ref-card">${shapeSVG(trial.shape, 80)}</div>`;
+    html += `<div class="divider-line"></div><div class="comparisons">`;
+    trial.comparisons.forEach((comp, ci) => {
+      const ans = answers[ti][ci];
+      const cls = ans ? ' answered' : '';
+      html += `<div class="comp-card"><div class="comp-shape${cls}">${shapeSVG(comp.points, 70)}</div>`;
+      html += `<div class="answer-btns">`;
+      html += `<button class="${ans === 'S' ? 'active-s' : ''}" onclick="setAnswer(${ti},${ci},'S')">S</button>`;
+      html += `<button class="${ans === 'D' ? 'active-d' : ''}" onclick="setAnswer(${ti},${ci},'D')">D</button>`;
+      html += `</div></div>`;
+    });
+    html += `</div></div>`;
+  });
+  document.getElementById('trials-container').innerHTML = html;
+  updateProgress();
+  updateNav();
+}
+
+function setAnswer(ti, ci, val) {
+  answers[ti][ci] = answers[ti][ci] === val ? null : val;
+  renderPage();
+}
+
+function updateProgress() {
+  let count = 0;
+  answers.forEach(row => row.forEach(a => { if (a !== null) count++; }));
+  const total = trials.length * 8;
+  document.getElementById('progress-fill').style.width = `${(count / total) * 100}%`;
+  document.getElementById('progress-text').textContent = `${count} / ${total} answered`;
+}
+
+function updateNav() {
+  const totalPages = Math.ceil(trials.length / TRIALS_PER_PAGE);
+  const start = currentPage * TRIALS_PER_PAGE;
+  const end = Math.min(start + TRIALS_PER_PAGE, trials.length);
+  const isLast = currentPage >= totalPages - 1;
+
+  document.getElementById('btn-prev').disabled = currentPage === 0;
+  document.getElementById('btn-prev').style.opacity = currentPage === 0 ? '0.4' : '1';
+  document.getElementById('nav-info').textContent = `Rows ${start + 1}–${end} of ${trials.length}`;
+  document.getElementById('btn-next').style.display = isLast ? 'none' : '';
+  document.getElementById('btn-finish-nav').style.display = isLast ? '' : 'none';
+}
+
+function prevPage() { if (currentPage > 0) { currentPage--; renderPage(); } }
+function nextPage() {
+  const totalPages = Math.ceil(trials.length / TRIALS_PER_PAGE);
+  if (currentPage < totalPages - 1) { currentPage++; renderPage(); }
+}
+
+// ═══════════════════════════════════════════════════
+// FINISH & RESULTS
+// ═══════════════════════════════════════════════════
+function finishTest() {
+  stopTimer();
+  let correct = 0, incorrect = 0, unanswered = 0;
+  trials.forEach((t, ti) => {
+    t.comparisons.forEach((c, ci) => {
+      const a = answers[ti][ci];
+      if (a === null) unanswered++;
+      else if ((a === 'S') === c.isSame) correct++;
+      else incorrect++;
+    });
+  });
+  const total = trials.length * 8;
+  const acc = correct + incorrect > 0 ? Math.round((correct / (correct + incorrect)) * 100) : 0;
+  document.getElementById('res-net').textContent = correct - incorrect;
+  document.getElementById('res-correct').textContent = correct;
+  document.getElementById('res-incorrect').textContent = incorrect;
+  document.getElementById('res-unanswered').textContent = unanswered;
+  document.getElementById('res-summary').textContent = `Total items: ${total}  ·  Accuracy: ${acc}%`;
+  document.getElementById('btn-review').style.display = currentMode === 'practice' ? '' : 'none';
+  showScreen('screen-results');
+}
+
+// ═══════════════════════════════════════════════════
+// REVIEW
+// ═══════════════════════════════════════════════════
+function showReview() {
+  let html = '';
+  trials.forEach((trial, ti) => {
+    html += `<div class="trial-row"><div class="trial-num">${ti + 1}</div>`;
+    html += `<div class="ref-card">${shapeSVG(trial.shape, 80)}</div>`;
+    html += `<div class="divider-line"></div><div class="comparisons">`;
+    trial.comparisons.forEach((comp, ci) => {
+      const ans = answers[ti][ci];
+      const correctAns = comp.isSame ? 'S' : 'D';
+      const isCorrect = ans === correctAns;
+      const cls = ans === null ? '' : isCorrect ? ' correct' : ' wrong';
+      html += `<div class="comp-card"><div class="comp-shape${cls}">${shapeSVG(comp.points, 70)}</div>`;
+      html += `<div class="review-tag">`;
+      html += `<span class="correct-ans">${correctAns}</span>`;
+      if (ans && !isCorrect) html += `<span class="wrong-ans">${ans}</span>`;
+      if (ans === null) html += `<span class="skipped">—</span>`;
+      html += `</div></div>`;
+    });
+    html += `</div></div>`;
+  });
+  document.getElementById('review-container').innerHTML = html;
+  showScreen('screen-review');
+}
+</script>
+</body>
+</html>
